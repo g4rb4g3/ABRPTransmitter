@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">ABRP Transmitter</string>
+    <string name="abrp_mail">ABRP mail:</string>
+    <string name="save">Save</string>
+</resources>
