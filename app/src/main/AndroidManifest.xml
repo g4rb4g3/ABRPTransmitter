@@ -23,6 +23,11 @@
                 <action android:name="com.hkmc.telematics.gis.action.NAVI_GPS_CHANGED"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".ClockSettingsReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.lge.ivi.action.CLOCKSETTING"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
