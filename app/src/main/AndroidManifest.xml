@@ -28,6 +28,11 @@
                 <action android:name="com.lge.ivi.action.CLOCKSETTING"/>
             </intent-filter>
         </receiver>
+        <receiver android:name=".ButtonReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.lge.ivi.action.KEY_EV"/>
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
