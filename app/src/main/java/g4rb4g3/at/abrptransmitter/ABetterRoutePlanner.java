@@ -30,7 +30,7 @@ public class ABetterRoutePlanner {
   public static final String TAG = "ABRPTransmitter";
   public static String mAbetterrouteplanner_user = null;
 
-  public static final String ABETTERROUTEPLANNER_URL = "http://abetterrouteplanner.com:4441/ioniq_data";
+  public static final String ABETTERROUTEPLANNER_URL = "http://api.iternio.com/1/tlm/ioniq28";
   public static final String ABETTERROUTEPLANNER_EMAIL = "eml";
   public static final String ABETTERROUTEPLANNER_SESSION_ID = "session";
   public static final String ABETTERROUTEPLANNER_TIME = "time";
@@ -56,7 +56,7 @@ public class ABetterRoutePlanner {
   private static IHvacTempListener mHvacTempListener;
 
   private static String mSessionId;
-  private static boolean mLoggedin = false;
+  private static boolean mLoggedin = false, mTransmitData = false;
   private static CarInfoManager mCarInfoManager;
 
   private static double mLat, mLon, mAlt;
@@ -139,6 +139,9 @@ public class ABetterRoutePlanner {
   }
 
   private static void sendUpdate() {
+    if(!mTransmitData) {
+      return;
+    }
     if(mAbetterrouteplanner_user == null) {
       Log.e(TAG, "missing abrp mail");
       return;
@@ -193,11 +196,9 @@ public class ABetterRoutePlanner {
     }
   }
 
-  public static void setAbrpMail(Context context) {
-    if(mAbetterrouteplanner_user != null) {
-      return;
-    }
+  public static void applyAbrpSettings(Context context) {
     SharedPreferences sp = context.getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
+    mTransmitData = sp.getBoolean(MainActivity.PREFERENCES_TRANSMIT_DATA, false);
     mAbetterrouteplanner_user = sp.getString(MainActivity.PREFERENCES_MAIL, null);
   }
 

@@ -23,7 +23,7 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
 
     double alt = intent.getDoubleExtra(EXTRA_ALT, 0);
 
-    ABetterRoutePlanner.setAbrpMail(context);
+    ABetterRoutePlanner.applyAbrpSettings(context);
     ABetterRoutePlanner.updateGps(lat, lon, alt);
   }
 }
