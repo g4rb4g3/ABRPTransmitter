@@ -17,6 +17,9 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import cz.msebera.android.httpclient.Header;
 import g4rb4g3.at.abrptransmitter.greencar.BatteryChargeListener;
 import g4rb4g3.at.abrptransmitter.greencar.EVPowerDisplayListener;
@@ -25,28 +28,29 @@ import g4rb4g3.at.abrptransmitter.hvac.HvacTempListener;
 
 public class ABetterRoutePlanner {
   public static final String TAG = "ABRPTransmitter";
-  public static String mAbetterrouteplanner_token = null;
+  public static final String ABETTERROUTEPLANNER_URL = "http://api.iternio.com/1/tlm/send?";
+  public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
+  public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
+  public static final String ABETTERROUTEPLANNER_URL_TELEMETRY = "tlm";
+  public static final String ABETTERROUTEPLANNER_JSON_TIME = "utc";
+  public static final String ABETTERROUTEPLANNER_JSON_CURRENT = "current";             //A
+  public static final String ABETTERROUTEPLANNER_JSON_VOLTAGE = "voltage";             //V
+  public static final String ABETTERROUTEPLANNER_JSON_POWER = "power";                 //kW
+  public static final String ABETTERROUTEPLANNER_JSON_SOC = "soc";                     //%
+  public static final String ABETTERROUTEPLANNER_JSON_SOH = "soh";                     //%
+  public static final String ABETTERROUTEPLANNER_JSON_SPEED = "speed";                 //km/h
+  public static final String ABETTERROUTEPLANNER_JSON_GPS_ELEVATION = "elevation";     //m
+  public static final String ABETTERROUTEPLANNER_JSON_GPS_LON = "lon";                 //deg
+  public static final String ABETTERROUTEPLANNER_JSON_GPS_LAT = "lat";                 //deg
+  public static final String ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT = "ext_temp";    //C
+  public static final String ABETTERROUTEPLANNER_JSON_TEMPERATURE_BATT = "batt_temp";  //C
+  public static final String ABETTERROUTEPLANNER_JSON_CHARGING = "is_charging";        //0 driving, 1 charging
+  public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL = "car_model";
+  public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28 = "hyundai:ioniq:17:28:other";
 
-  public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
-  public static final String ABETTERROUTEPLANNER_TOKEN = "token";
-  public static final String ABETTERROUTEPLANNER_API_KEY = "api_key";
-  public static final String ABETTERROUTEPLANNER_TIME = "utc";
-  public static final String ABETTERROUTEPLANNER_CURRENT = "current";             //A
-  public static final String ABETTERROUTEPLANNER_VOLTAGE = "voltage";             //V
-  public static final String ABETTERROUTEPLANNER_POWER = "power";                 //kW
-  public static final String ABETTERROUTEPLANNER_SOC = "soc";                     //%
-  public static final String ABETTERROUTEPLANNER_SOH = "soh";                     //%
-  public static final String ABETTERROUTEPLANNER_SPEED = "speed";                 //km/h
-  public static final String ABETTERROUTEPLANNER_GPS_ELEVATION = "elevation";     //m
-  public static final String ABETTERROUTEPLANNER_GPS_LON = "lon";                 //deg
-  public static final String ABETTERROUTEPLANNER_GPS_LAT = "lat";                 //deg
-  public static final String ABETTERROUTEPLANNER_TEMPERATURE_EXT = "ext_temp";    //C
-  public static final String ABETTERROUTEPLANNER_TEMPERATURE_BATT  = "batt_temp"; //C
-  public static final String ABETTERROUTEPLANNER_CHARGING = "is_charging";        //0 driving, 1 charging
-  public static final String ABETTERROUTEPLANNER_CAR_MODEL = "car_model";
-  public static final String ABETTERROUTEPLANNER_CAR_MODEL_IONIQ28 = "hyundai:ioniq:17:28:other";
-  public static final String ABETTERROUTEPLANNER_TELEMETRY = "tlm";
+  private static final String ABETTERROUTEPLANNER_API_KEY = "INSERT YOU API KEY HERE";
 
+  private static String mAbetterrouteplanner_token = null;
   private static GreenCarManager mGreenCarManager;
   private static IBatteryChargeListener mBatteryChargeListener;
   private static IEVPowerDisplayListener mEvPowerDisplayListener;
@@ -80,17 +84,17 @@ public class ABetterRoutePlanner {
     mHvacManager.registerHvacTempListener(mHvacTempListener);
 
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_TIME, System.currentTimeMillis() / 1000);
-      jTlmObj.put(ABETTERROUTEPLANNER_SOC, mGreenCarManager.getBatteryChargePersent());
-      jTlmObj.put(ABETTERROUTEPLANNER_SPEED, mCarInfoManager.getCarSpeed());
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_LAT, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_LON, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_CHARGING, 0);
-      jTlmObj.put(ABETTERROUTEPLANNER_CAR_MODEL, ABETTERROUTEPLANNER_CAR_MODEL_IONIQ28);
+      jTlmObj = new JSONObject();
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, 0.0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, 0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CAR_MODEL, ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28);
 
-      jTlmObj.put(ABETTERROUTEPLANNER_POWER, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_ELEVATION, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0.0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, 0.0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
     } catch (JSONException e) {
       Log.e(TAG, "error building json object", e);
     }
@@ -98,9 +102,9 @@ public class ABetterRoutePlanner {
 
   public static void updateGps(double lat, double lon, double alt) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_LAT, lat);
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_LON, lon);
-      jTlmObj.put(ABETTERROUTEPLANNER_GPS_ELEVATION, alt);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
       sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
@@ -109,7 +113,7 @@ public class ABetterRoutePlanner {
 
   public static void updateSoC(int soc) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_SOC, soc);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
       sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
@@ -118,7 +122,7 @@ public class ABetterRoutePlanner {
 
   public static void updateTemperature(float temperature) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_TEMPERATURE_EXT, temperature);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
       sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
@@ -127,7 +131,7 @@ public class ABetterRoutePlanner {
 
   public static void updateEngineConsumption(int kw) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_POWER, kw + mKwAircon + mKwElecticalDevice + mKwHeating);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, kw + mKwAircon + mKwElecticalDevice + mKwHeating);
       sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
@@ -147,23 +151,29 @@ public class ABetterRoutePlanner {
   }
 
   private static void sendUpdate() throws JSONException {
-    if(!mTransmitData) {
+    if (!mTransmitData) {
       return;
     }
-    if(mAbetterrouteplanner_token == null) {
+    if (mAbetterrouteplanner_token == null) {
       Log.e(TAG, "missing abrp token");
       return;
     }
-    if (jTlmObj.getDouble(ABETTERROUTEPLANNER_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_GPS_LON) == 0.0) {
+    if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
-
-    jTlmObj.put(ABETTERROUTEPLANNER_SPEED, mCarInfoManager.getCarSpeed());
+    jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
+    jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
 
     StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
-        .append(ABETTERROUTEPLANNER_TOKEN).append("=").append(mAbetterrouteplanner_token)
-        .append("&").append(ABETTERROUTEPLANNER_API_KEY).append("=").append("TODO")
-        .append("&").append(ABETTERROUTEPLANNER_TELEMETRY).append(jTlmObj.toString());
+        .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(mAbetterrouteplanner_token)
+        .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
+        .append("&").append(ABETTERROUTEPLANNER_URL_TELEMETRY).append("=");
+    try {
+      url.append(URLEncoder.encode(jTlmObj.toString(), "UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      Log.e(TAG, "UnsupportedEncodingException", e);
+      return;
+    }
     AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
     asyncHttpClient.get(url.toString(), new AsyncHttpResponseHandler() {
       @Override
