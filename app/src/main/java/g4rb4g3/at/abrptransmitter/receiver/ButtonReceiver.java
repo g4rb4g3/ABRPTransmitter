@@ -1,10 +1,10 @@
-package g4rb4g3.at.abrptransmitter;
+package g4rb4g3.at.abrptransmitter.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.widget.Toast;
+
+import g4rb4g3.at.abrptransmitter.MainActivity;
 
 public class ButtonReceiver extends BroadcastReceiver {
   private static int mCalls = 0;

@@ -18,17 +18,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".NaviGpsChangedReceiver" android:exported="true">
+        <receiver android:name=".receiver.NaviGpsChangedReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.hkmc.telematics.gis.action.NAVI_GPS_CHANGED"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".ClockSettingsReceiver" android:exported="true">
+        <receiver android:name=".receiver.ClockSettingsReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.lge.ivi.action.CLOCKSETTING"/>
             </intent-filter>
         </receiver>
-        <receiver android:name=".ButtonReceiver" android:exported="true">
+        <receiver android:name=".receiver.ButtonReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.lge.ivi.action.KEY_EV"/>
             </intent-filter>

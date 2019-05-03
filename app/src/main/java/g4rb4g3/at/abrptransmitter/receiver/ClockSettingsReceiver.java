@@ -1,4 +1,4 @@
-package g4rb4g3.at.abrptransmitter;
+package g4rb4g3.at.abrptransmitter.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
