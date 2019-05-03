@@ -59,7 +59,7 @@ public class ABetterRoutePlanner {
   private static HvacManager mHvacManager;
   private static IHvacTempListener mHvacTempListener;
 
-  private static boolean mTransmitData = false;
+  private static boolean mTransmitData = false, mIsCharging = false;
   private static CarInfoManager mCarInfoManager;
 
   private static float mKwElecticalDevice, mKwAircon, mKwHeating;
@@ -83,13 +83,15 @@ public class ABetterRoutePlanner {
     mHvacTempListener = new HvacTempListener();
     mHvacManager.registerHvacTempListener(mHvacTempListener);
 
+    mIsCharging = mGreenCarManager.getChargeStatus() == 1;
+
     try {
       jTlmObj = new JSONObject();
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, 0);
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_CAR_MODEL, ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28);
 
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0.0);
@@ -150,6 +152,8 @@ public class ABetterRoutePlanner {
     mKwHeating = (float) (w / 1000.0);
   }
 
+  public static void updateIsCharging(boolean isCharging) { mIsCharging =  isCharging; }
+
   private static void sendUpdate() throws JSONException {
     if (!mTransmitData) {
       return;
@@ -163,6 +167,7 @@ public class ABetterRoutePlanner {
     }
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
+    jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
 
     StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
         .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(mAbetterrouteplanner_token)

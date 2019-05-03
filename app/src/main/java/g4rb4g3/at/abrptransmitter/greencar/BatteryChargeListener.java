@@ -10,6 +10,7 @@ import g4rb4g3.at.abrptransmitter.NumberHolder;
 public class BatteryChargeListener extends IBatteryChargeListener.Stub {
 
   private final NumberHolder mPHEVBatteryChargePersentChanged = new NumberHolder();
+  private final NumberHolder mPHEVChargeStatusChanged = new NumberHolder();
 
   @Override
   public void onPHEVBatteryChargePersentChanged(int oldValue, int newValue) throws RemoteException {
@@ -34,6 +35,11 @@ public class BatteryChargeListener extends IBatteryChargeListener.Stub {
 
   @Override
   public void onPHEVChargeStatusChanged(int oldValue, int newValue) throws RemoteException {
+    if(mPHEVChargeStatusChanged.equals(oldValue, newValue)) {
+      return;
+    }
+    mPHEVChargeStatusChanged.setValues(oldValue, newValue);
+    ABetterRoutePlanner.updateIsCharging(newValue == 1);
   }
 
   @Override
