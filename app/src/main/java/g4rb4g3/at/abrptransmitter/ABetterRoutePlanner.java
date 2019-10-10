@@ -19,6 +19,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cz.msebera.android.httpclient.Header;
 import g4rb4g3.at.abrptransmitter.greencar.BatteryChargeListener;
@@ -66,6 +68,19 @@ public class ABetterRoutePlanner {
 
   private static JSONObject jTlmObj;
 
+  public static final long sendUpdateInterval = 5000L;
+  private static Timer tSendUpdate;
+  private static TimerTask ttSendUpdate = new TimerTask() {
+    @Override
+    public void run() {
+      try {
+        sendUpdate();
+      } catch (JSONException e) {
+        Log.e(TAG, "error sending update", e);
+      }
+    }
+  };
+
   static {
     mCarInfoManager = CarInfoManager.getInstance();
     mGreenCarManager = GreenCarManager.getInstance(null);
@@ -100,6 +115,8 @@ public class ABetterRoutePlanner {
     } catch (JSONException e) {
       Log.e(TAG, "error building json object", e);
     }
+    tSendUpdate = new Timer();
+    tSendUpdate.schedule(ttSendUpdate, sendUpdateInterval, sendUpdateInterval);
   }
 
   public static void updateGps(double lat, double lon, double alt) {
@@ -107,7 +124,6 @@ public class ABetterRoutePlanner {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -116,7 +132,6 @@ public class ABetterRoutePlanner {
   public static void updateSoC(int soc) {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -125,7 +140,6 @@ public class ABetterRoutePlanner {
   public static void updateTemperature(float temperature) {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -134,7 +148,6 @@ public class ABetterRoutePlanner {
   public static void updateEngineConsumption(int kw) {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, kw + mKwAircon + mKwElecticalDevice + mKwHeating);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -206,6 +219,7 @@ public class ABetterRoutePlanner {
 
   @Override
   protected void finalize() {
+    tSendUpdate.cancel();
     mGreenCarManager.unregister(mBatteryChargeListener);
     mGreenCarManager.unregister(mEvPowerDisplayListener);
     mGreenCarManager.unregister(mGreenCarGwEvP06ExtraListener);
