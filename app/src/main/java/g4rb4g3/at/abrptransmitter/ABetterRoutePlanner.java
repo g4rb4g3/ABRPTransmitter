@@ -28,7 +28,7 @@ import g4rb4g3.at.abrptransmitter.hvac.HvacTempListener;
 
 public class ABetterRoutePlanner {
   public static final String TAG = "ABRPTransmitter";
-  public static final String ABETTERROUTEPLANNER_URL = "http://api.iternio.com/1/tlm/send?";
+  public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
   public static final String ABETTERROUTEPLANNER_URL_TELEMETRY = "tlm";
@@ -179,7 +179,7 @@ public class ABetterRoutePlanner {
       Log.e(TAG, "UnsupportedEncodingException", e);
       return;
     }
-    AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    AsyncHttpClient asyncHttpClient = new AsyncHttpClient(true, 80, 443);
     asyncHttpClient.get(url.toString(), new AsyncHttpResponseHandler() {
       @Override
       public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -189,6 +189,11 @@ public class ABetterRoutePlanner {
       @Override
       public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
         Log.e(TAG, String.valueOf(statusCode), error);
+      }
+
+      @Override
+      public boolean getUseSynchronousMode() {
+        return false;
       }
     });
   }
