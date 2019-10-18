@@ -38,7 +38,7 @@ public class AverageUnitTest {
             Thread.sleep(updateInterval / 5);
         } catch (Exception e) {
         }
-        assertEquals(7.5f, Average.getAverageConsumption(updateInterval), 0.1);
+        assertEquals(7.5f, Average.getAverageConsumption(), 0.1);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class AverageUnitTest {
             Thread.sleep(updateInterval);
         } catch (Exception e) {
         }
-        assertEquals(5f, Average.getAverageConsumption(updateInterval), 0.1);
+        assertEquals(5f, Average.getAverageConsumption(), 0.1);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class AverageUnitTest {
             Thread.sleep(updateInterval / 5);
         } catch (Exception e) {
         }
-        assertEquals(3f, Average.getAverageConsumption(updateInterval), 0.1);
+        assertEquals(3f, Average.getAverageConsumption(), 0.1);
 
         Average.addValueToAverageConsumption(6f);
         try {
@@ -107,16 +107,46 @@ public class AverageUnitTest {
             Thread.sleep(updateInterval / 5);
         } catch (Exception e) {
         }
-        assertEquals(6f, Average.getAverageConsumption(updateInterval), 0.1);
+        assertEquals(6f, Average.getAverageConsumption(), 0.1);
     }
 
     @Test
     public void test_timer_wrong_interval() {
-        Average.addValueToAverageConsumption(10);
+        Average.addValueToAverageConsumption(1);
         try {
-            Thread.sleep(700);
+            Thread.sleep(100);
         } catch (Exception e) {
         }
-        assertEquals(-1, Average.getAverageConsumption(100), 0.1);
+        Average.addValueToAverageConsumption(2);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+        }
+        Average.addValueToAverageConsumption(3);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+        }
+        Average.addValueToAverageConsumption(4);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+        }
+        Average.addValueToAverageConsumption(5);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+        }
+        Average.addValueToAverageConsumption(6);
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {
+        }
+        Average.addValueToAverageConsumption(3.5f);
+        try {
+            Thread.sleep(400);
+        } catch (Exception e) {
+        }
+        assertEquals(3.5, Average.getAverageConsumption(), 0.1);
     }
 }

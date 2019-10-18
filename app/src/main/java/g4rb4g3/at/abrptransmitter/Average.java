@@ -21,19 +21,10 @@ public class Average {
         lastConsumption = kw;
     }
 
-    public static float getAverageConsumption(long updateInterval) {
+    public static float getAverageConsumption() {
         long currentTime = System.currentTimeMillis();
-        if (currentTime - intervalStart > updateInterval + 500) {
-            // sometimes, especially when switching the car to P, it may happen, that the timer
-            // is called later than it should be called. as this value might be way off we
-            // should skip it
-
-            lastTime = 0;
-            return -1;
-        }
-
         consumptionSum += lastConsumption * (currentTime - lastTime);
         lastTime = 0;
-        return consumptionSum / updateInterval;
+        return consumptionSum / (currentTime - intervalStart);
     }
 }

@@ -178,7 +178,7 @@ public class ABetterRoutePlanner {
     if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
-    float average = Average.getAverageConsumption(sendUpdateInterval);
+    float average = Average.getAverageConsumption();
     if (average > -1) {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     }
