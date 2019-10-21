@@ -19,6 +19,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cz.msebera.android.httpclient.Header;
 import g4rb4g3.at.abrptransmitter.greencar.BatteryChargeListener;
@@ -62,14 +64,31 @@ public class ABetterRoutePlanner {
   private static boolean mTransmitData = false, mIsCharging = false;
   private static CarInfoManager mCarInfoManager;
 
-  private static float mKwElecticalDevice, mKwAircon, mKwHeating;
+  private static float mKwElectricalDevice, mKwAirCon, mKwHeating;
 
   private static JSONObject jTlmObj;
+
+  private static AsyncHttpClient asyncHttpClient;
+
+  public static final long sendUpdateInterval = 5000L;
+  private static Timer tSendUpdate;
+  private static TimerTask ttSendUpdate = new TimerTask() {
+    @Override
+    public void run() {
+      try {
+        sendUpdate();
+      } catch (JSONException e) {
+        Log.e(TAG, "error sending update", e);
+      }
+    }
+  };
 
   static {
     mCarInfoManager = CarInfoManager.getInstance();
     mGreenCarManager = GreenCarManager.getInstance(null);
     mHvacManager = HvacManager.getInstance();
+    asyncHttpClient  = new AsyncHttpClient(true, 80, 443);
+    asyncHttpClient.setTimeout((int)sendUpdateInterval - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
 
     mBatteryChargeListener = new BatteryChargeListener();
     mGreenCarManager.register(mBatteryChargeListener);
@@ -100,6 +119,8 @@ public class ABetterRoutePlanner {
     } catch (JSONException e) {
       Log.e(TAG, "error building json object", e);
     }
+    tSendUpdate = new Timer();
+    tSendUpdate.schedule(ttSendUpdate, sendUpdateInterval, sendUpdateInterval);
   }
 
   public static void updateGps(double lat, double lon, double alt) {
@@ -107,7 +128,6 @@ public class ABetterRoutePlanner {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -116,7 +136,6 @@ public class ABetterRoutePlanner {
   public static void updateSoC(int soc) {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
@@ -125,27 +144,21 @@ public class ABetterRoutePlanner {
   public static void updateTemperature(float temperature) {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
-      sendUpdate();
     } catch (JSONException e) {
       Log.e(TAG, "error updating json object", e);
     }
   }
 
   public static void updateEngineConsumption(int kw) {
-    try {
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, kw + mKwAircon + mKwElecticalDevice + mKwHeating);
-      sendUpdate();
-    } catch (JSONException e) {
-      Log.e(TAG, "error updating json object", e);
-    }
+    Average.addValueToAverageConsumption(kw + mKwAirCon + mKwElectricalDevice + mKwHeating);
   }
 
   public static void updateElecticalDeviceConsumption(int w) {
-    mKwElecticalDevice = (float) (w / 1000.0);
+    mKwElectricalDevice = (float) (w / 1000.0);
   }
 
   public static void updateAirconConsumption(int w) {
-    mKwAircon = (float) (w / 1000.0);
+    mKwAirCon = (float) (w / 1000.0);
   }
 
   public static void updateHeatingConsumption(int w) {
@@ -165,6 +178,10 @@ public class ABetterRoutePlanner {
     if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
+    float average = Average.getAverageConsumption();
+    if (average > -1) {
+      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
+    }
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
@@ -179,7 +196,7 @@ public class ABetterRoutePlanner {
       Log.e(TAG, "UnsupportedEncodingException", e);
       return;
     }
-    AsyncHttpClient asyncHttpClient = new AsyncHttpClient(true, 80, 443);
+
     asyncHttpClient.get(url.toString(), new AsyncHttpResponseHandler() {
       @Override
       public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -206,6 +223,7 @@ public class ABetterRoutePlanner {
 
   @Override
   protected void finalize() {
+    tSendUpdate.cancel();
     mGreenCarManager.unregister(mBatteryChargeListener);
     mGreenCarManager.unregister(mEvPowerDisplayListener);
     mGreenCarManager.unregister(mGreenCarGwEvP06ExtraListener);
