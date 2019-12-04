@@ -19,7 +19,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/tv_abrp_mail"
+        android:id="@+id/tv_abrp_token"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -53,5 +53,26 @@
         android:layout_marginTop="8dp"
         android:text="@string/transmit_data"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_abrp_mail" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_abrp_token" />
+
+    <TextView
+        android:id="@+id/tv_companion_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/companion_ip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_transmit" />
+
+    <TextView
+        android:id="@+id/tv_companion_ip"
+        android:layout_width="911dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="8dp"
+        android:text=""
+        app:layout_constraintStart_toEndOf="@+id/tv_companion_label"
+        app:layout_constraintTop_toBottomOf="@+id/cb_transmit" />
 </android.support.constraint.ConstraintLayout>

@@ -29,7 +29,6 @@ import g4rb4g3.at.abrptransmitter.greencar.GreenCarGwEvP06ExtraListener;
 import g4rb4g3.at.abrptransmitter.hvac.HvacTempListener;
 
 public class ABetterRoutePlanner {
-  public static final String TAG = "ABRPTransmitter";
   public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
@@ -78,7 +77,7 @@ public class ABetterRoutePlanner {
       try {
         sendUpdate();
       } catch (JSONException e) {
-        Log.e(TAG, "error sending update", e);
+        Log.e(MainActivity.TAG, "error sending update", e);
       }
     }
   };
@@ -117,7 +116,7 @@ public class ABetterRoutePlanner {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, 0.0);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
     } catch (JSONException e) {
-      Log.e(TAG, "error building json object", e);
+      Log.e(MainActivity.TAG, "error building json object", e);
     }
     tSendUpdate = new Timer();
     tSendUpdate.schedule(ttSendUpdate, sendUpdateInterval, sendUpdateInterval);
@@ -129,7 +128,7 @@ public class ABetterRoutePlanner {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
     } catch (JSONException e) {
-      Log.e(TAG, "error updating json object", e);
+      Log.e(MainActivity.TAG, "error updating json object", e);
     }
   }
 
@@ -137,7 +136,7 @@ public class ABetterRoutePlanner {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
     } catch (JSONException e) {
-      Log.e(TAG, "error updating json object", e);
+      Log.e(MainActivity.TAG, "error updating json object", e);
     }
   }
 
@@ -145,7 +144,7 @@ public class ABetterRoutePlanner {
     try {
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
     } catch (JSONException e) {
-      Log.e(TAG, "error updating json object", e);
+      Log.e(MainActivity.TAG, "error updating json object", e);
     }
   }
 
@@ -172,7 +171,7 @@ public class ABetterRoutePlanner {
       return;
     }
     if (mAbetterrouteplanner_token == null) {
-      Log.e(TAG, "missing abrp token");
+      Log.e(MainActivity.TAG, "missing abrp token");
       return;
     }
     if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
@@ -193,7 +192,7 @@ public class ABetterRoutePlanner {
     try {
       url.append(URLEncoder.encode(jTlmObj.toString(), "UTF-8"));
     } catch (UnsupportedEncodingException e) {
-      Log.e(TAG, "UnsupportedEncodingException", e);
+      Log.e(MainActivity.TAG, "UnsupportedEncodingException", e);
       return;
     }
 
@@ -205,7 +204,7 @@ public class ABetterRoutePlanner {
 
       @Override
       public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-        Log.e(TAG, String.valueOf(statusCode), error);
+        Log.e(MainActivity.TAG, String.valueOf(statusCode), error);
       }
 
       @Override

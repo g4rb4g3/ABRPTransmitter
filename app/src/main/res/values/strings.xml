@@ -4,4 +4,5 @@
     <string name="save">Save</string>
     <string name="transmit_data">Transmit data</string>
     <string name="saved">Settings saved successfully!</string>
+    <string name="companion_ip">Companion IP:</string>
 </resources>
