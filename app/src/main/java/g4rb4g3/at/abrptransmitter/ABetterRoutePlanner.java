@@ -184,7 +184,7 @@ public class ABetterRoutePlanner {
       return;
     }
     float average = Average.getAverageConsumption();
-    if (average > -1) {
+    if (average > -100 && average < 100) { // regen and consumption check
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     }
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
