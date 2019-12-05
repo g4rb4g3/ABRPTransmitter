@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
   public static final String PREFERENCES_NAME = "preferences";
   public static final String PREFERENCES_TOKEN = "abrp_token";
   public static final String PREFERENCES_TRANSMIT_DATA = "transmit_data";
+  public static final String PREFERENCES_MUTE_REVERSE_GEAR = "mute_reverse_gear";
+
 
   private TextView mTvToken;
   private TextView mTvCompanionIp;
@@ -82,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
     final CheckBox cbTrsansmitData = findViewById(R.id.cb_transmit);
     cbTrsansmitData.setChecked(sp.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
 
+    final CheckBox cbMuteRevrseGear = findViewById(R.id.cb_mute_reverse_gear);
+    cbMuteRevrseGear.setChecked(sp.getBoolean(PREFERENCES_MUTE_REVERSE_GEAR, false));
+
     Button btSave = findViewById(R.id.save);
     btSave.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -89,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences.Editor sped = sp.edit();
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, cbTrsansmitData.isChecked());
+        sped.putBoolean(PREFERENCES_MUTE_REVERSE_GEAR, cbMuteRevrseGear.isChecked());
         sped.commit();
 
         Toast.makeText(getApplicationContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();

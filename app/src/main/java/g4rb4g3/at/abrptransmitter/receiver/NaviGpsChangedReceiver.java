@@ -19,6 +19,8 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
     double lat = intent.getDoubleExtra(EXTRA_LAT, 0);
     double lon = intent.getDoubleExtra(EXTRA_LON, 0);
 
+    ABetterRoutePlanner.setContext(context);
+
     if(mLatLonHolder.equals(lat, lon)) {
       return;
     }
@@ -26,7 +28,7 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
 
     double alt = intent.getDoubleExtra(EXTRA_ALT, 0);
 
-    ABetterRoutePlanner.applyAbrpSettings(context);
+    ABetterRoutePlanner.applyAbrpSettings();
     ABetterRoutePlanner.updateGps(lat, lon, alt);
   }
 }

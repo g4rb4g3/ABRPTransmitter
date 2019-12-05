@@ -5,4 +5,5 @@
     <string name="transmit_data">Transmit data</string>
     <string name="saved">Settings saved successfully!</string>
     <string name="companion_ip">Companion IP:</string>
+    <string name="mute_on_reverse_gear">Mute on reverse gear</string>
 </resources>

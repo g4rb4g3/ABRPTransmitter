@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.lge.ivi.IVIMessageManager;
 import com.lge.ivi.carinfo.CarInfoManager;
 import com.lge.ivi.greencar.GreenCarManager;
 import com.lge.ivi.greencar.IBatteryChargeListener;
@@ -27,6 +28,7 @@ import g4rb4g3.at.abrptransmitter.greencar.BatteryChargeListener;
 import g4rb4g3.at.abrptransmitter.greencar.EVPowerDisplayListener;
 import g4rb4g3.at.abrptransmitter.greencar.GreenCarGwEvP06ExtraListener;
 import g4rb4g3.at.abrptransmitter.hvac.HvacTempListener;
+import g4rb4g3.at.abrptransmitter.message.OnEtcStatusChangedEventListener;
 
 public class ABetterRoutePlanner {
   public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
@@ -81,6 +83,10 @@ public class ABetterRoutePlanner {
       }
     }
   };
+
+  private static Context mContext = null;
+  private static IVIMessageManager mIviMessageManager = null;
+  private static OnEtcStatusChangedEventListener mOnEtcStatusChangedEventListener = null;
 
   static {
     mCarInfoManager = CarInfoManager.getInstance();
@@ -214,10 +220,28 @@ public class ABetterRoutePlanner {
     });
   }
 
-  public static void applyAbrpSettings(Context context) {
-    SharedPreferences sp = context.getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
+  public static void applyAbrpSettings() {
+    if(mContext == null) {
+      return;
+    }
+    SharedPreferences sp = mContext.getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
     mTransmitData = sp.getBoolean(MainActivity.PREFERENCES_TRANSMIT_DATA, false);
     mAbetterrouteplanner_token = sp.getString(MainActivity.PREFERENCES_TOKEN, null);
+  }
+
+  public static void setContext(Context context) {
+    if(mContext == null) {
+      mContext = context;
+
+      //abused as autostart
+      mIviMessageManager = IVIMessageManager.getInstance(context);
+      mOnEtcStatusChangedEventListener = new OnEtcStatusChangedEventListener(context);
+      mIviMessageManager.registerIVIMessageListener(com.lge.ivi.eIVIMessage.ETC_STATUS_CHANGE_EVENT.getID(), mOnEtcStatusChangedEventListener);
+    }
+  }
+
+  public static Context getmContext() {
+    return mContext;
   }
 
   @Override
@@ -228,5 +252,9 @@ public class ABetterRoutePlanner {
     mGreenCarManager.unregister(mGreenCarGwEvP06ExtraListener);
 
     mHvacManager.unRegisterHvacTempListener(mHvacTempListener);
+
+    if(mIviMessageManager != null) {
+      mIviMessageManager.unregisterIVIMessageListener(mOnEtcStatusChangedEventListener);
+    }
   }
 }
