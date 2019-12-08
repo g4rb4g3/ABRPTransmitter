@@ -105,7 +105,18 @@ public class MainActivity extends AppCompatActivity {
     Thread thread = new Thread(mCompanionDataExchanger);
     thread.start();
 
-    VncServer.starStopServer(getApplicationContext());
+    Button btnVnc = findViewById(R.id.btn_toggle_vnc);
+    if(VncServer.checkIfRunning() == null) {
+      btnVnc.setText(getText(R.string.start_vnc));
+    } else {
+      btnVnc.setText(getText(R.string.stop_vnc));
+    }
+    btnVnc.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        VncServer.starStopServer(getApplicationContext());
+      }
+    });
   }
 
   @Override

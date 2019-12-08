@@ -9,6 +9,7 @@ import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
@@ -25,17 +26,17 @@ public class VncServer {
     ExtMediaManager extMediaManager = ExtMediaManager.getInstance(context);
 
     if (serverPid != null) {
-      extMediaManager.excute("kill -SIGTERM " + serverPid, "");
+      extMediaManager.excute("kill -SIGTERM " + serverPid, null);
     } else {
-      String reversevncserver_cmd = context.getFilesDir().getParent() + "/lib/" + exe_name;
+      String reversevncserver_cmd = "busybox nohup " + context.getFilesDir().getParent() + "/lib/" + exe_name + " > /dev/null &";
       String reversevncserver_chmod = "chmod a+rwx " + reversevncserver_cmd;
 
-      extMediaManager.excute(reversevncserver_chmod, "");
-      extMediaManager.excute(reversevncserver_cmd, "");
+      extMediaManager.excute(reversevncserver_chmod, null);
+      extMediaManager.excute(reversevncserver_cmd, null);
     }
   }
 
-  private static String checkIfRunning() {
+  public static String checkIfRunning() {
     String pid = null;
     try {
       Process proc = Runtime.getRuntime().exec("ps");

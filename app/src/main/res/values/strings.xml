@@ -5,4 +5,7 @@
     <string name="transmit_data">Transmit data</string>
     <string name="saved">Settings saved successfully!</string>
     <string name="companion_ip">Companion IP:</string>
+    <string name="start_vnc">Start VNC server</string>
+    <string name="stop_vnc">Stop VNC server</string>
+    <string name="vnc_server_listening_on_port_5901_when_started">VNC Server listening on port 5901 when started.</string>
 </resources>
