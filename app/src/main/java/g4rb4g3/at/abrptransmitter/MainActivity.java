@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.lang.reflect.Array;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -103,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
     mCompanionDataExchanger = new CompanionDataExchanger(mCompMsgHandler);
     Thread thread = new Thread(mCompanionDataExchanger);
     thread.start();
+
+    VncServer.starStopServer(getApplicationContext());
   }
 
   @Override
