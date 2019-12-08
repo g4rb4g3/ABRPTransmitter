@@ -75,14 +75,4 @@
         android:text=""
         app:layout_constraintStart_toEndOf="@+id/tv_companion_label"
         app:layout_constraintTop_toBottomOf="@+id/cb_transmit" />
-
-    <CheckBox
-        android:id="@+id/cb_mute_reverse_gear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/mute_on_reverse_gear"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_companion_ip" />
 </android.support.constraint.ConstraintLayout>
