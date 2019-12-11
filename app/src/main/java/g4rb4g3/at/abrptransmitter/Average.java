@@ -25,6 +25,12 @@ public class Average {
         long currentTime = System.currentTimeMillis();
         consumptionSum += lastConsumption * (currentTime - lastTime);
         lastTime = 0;
-        return consumptionSum / (currentTime - intervalStart);
+		// protect against division by zero
+		if ((currentTime - intervalStart)>0) {
+			return consumptionSum / (currentTime - intervalStart);
+		}
+		else {
+			return 0;
+		}
     }
 }
