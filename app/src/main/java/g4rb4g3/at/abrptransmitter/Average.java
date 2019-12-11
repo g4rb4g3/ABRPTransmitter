@@ -2,35 +2,35 @@ package g4rb4g3.at.abrptransmitter;
 
 public class Average {
 
-    private static long intervalStart = 0;
-    private static long lastTime = 0;
-    private static float lastConsumption = 0;
-    private static float consumptionSum = 0;
+    private long intervalStart = 0;
+    private long lastTime = 0;
+    private float lastConsumption = 0;
+    private float consumptionSum = 0;
 
-    public static void addValueToAverageConsumption(float kw) {
+    public void addValueToAverageConsumption(float kw) {
         long currentTime = System.currentTimeMillis();
-        if (lastTime == 0) {
-            lastTime = currentTime;
-            lastConsumption = kw;
-            consumptionSum = 0;
-            intervalStart = currentTime;
+        if (this.lastTime == 0) {
+            this.lastTime = currentTime;
+            this.lastConsumption = kw;
+            this.consumptionSum = 0;
+            this.intervalStart = currentTime;
             return;
         }
-        consumptionSum += lastConsumption * (currentTime - lastTime);
-        lastTime = currentTime;
-        lastConsumption = kw;
+        this.consumptionSum += this.lastConsumption * (currentTime - this.lastTime);
+        this.lastTime = currentTime;
+        this.lastConsumption = kw;
     }
 
-    public static float getAverageConsumption() {
+    public float getAverageConsumption() {
         long currentTime = System.currentTimeMillis();
-        consumptionSum += lastConsumption * (currentTime - lastTime);
-        lastTime = 0;
-		// protect against division by zero
-		if ((currentTime - intervalStart)>0) {
-			return consumptionSum / (currentTime - intervalStart);
-		}
-		else {
-			return 0;
-		}
+        this.consumptionSum += this.lastConsumption * (currentTime - this.lastTime);
+        this.lastTime = 0;
+        // protect against division by zero
+        if ((currentTime - this.intervalStart)>0) {
+            return this.consumptionSum / (currentTime - this.intervalStart);
+        }
+        else {
+            return 0;
+        }
     }
 }

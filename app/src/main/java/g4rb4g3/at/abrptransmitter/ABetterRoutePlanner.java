@@ -63,10 +63,10 @@ public class ABetterRoutePlanner {
   private static boolean mTransmitData = false, mIsCharging = false;
   private static CarInfoManager mCarInfoManager;
 
-  AverageElectricalDevice = new Average();
-  AverageHeating = new Average();
-  AverageAirCon = new Average();
-  AverageEngine = new Average();
+  private static Average AverageElectricalDevice = new Average();
+  private static Average AverageHeating = new Average();
+  private static Average AverageAirCon = new Average();
+  private static Average AverageEngine = new Average();
   
   private static JSONObject jTlmObj;
 
@@ -155,16 +155,16 @@ public class ABetterRoutePlanner {
     AverageEngine.addValueToAverageConsumption(kw);
   }
 
-  public static void updateElecticalDeviceConsumption(int w) {
-	AverageElectricalDevice.addValueToAverageConsumption((float) (w / 1000.0))
+  public static void updateElectricalDeviceConsumption(int w) {
+	AverageElectricalDevice.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateAirconConsumption(int w) {
-	AverageAirCon.addValueToAverageConsumption((float) (w / 1000.0))
+	AverageAirCon.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateHeatingConsumption(int w) {
-	AverageHeating.addValueToAverageConsumption((float) (w / 1000.0))
+	AverageHeating.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateIsCharging(boolean isCharging) { mIsCharging =  isCharging; }
