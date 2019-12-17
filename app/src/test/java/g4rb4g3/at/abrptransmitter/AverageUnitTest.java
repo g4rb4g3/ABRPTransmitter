@@ -13,6 +13,7 @@ public class AverageUnitTest {
     @Test
     public void testAverageConsumption() {
         int updateInterval = 1000;
+        Average Average = new Average();
         Average.addValueToAverageConsumption(5f);
         try {
             Thread.sleep(updateInterval / 5);
@@ -44,6 +45,7 @@ public class AverageUnitTest {
     @Test
     public void testAverageConsumption_only_one_value() {
         int updateInterval = 1000;
+        Average Average = new Average();
         Average.addValueToAverageConsumption(5f);
         try {
             Thread.sleep(updateInterval);
@@ -55,6 +57,7 @@ public class AverageUnitTest {
     @Test
     public void test_multiple_averages_result_in_different_average() {
         int updateInterval = 1000;
+        Average Average = new Average();
         Average.addValueToAverageConsumption(1f);
         try {
             Thread.sleep(updateInterval / 5);
@@ -112,6 +115,7 @@ public class AverageUnitTest {
 
     @Test
     public void test_timer_wrong_interval() {
+        Average Average = new Average();
         Average.addValueToAverageConsumption(1);
         try {
             Thread.sleep(100);

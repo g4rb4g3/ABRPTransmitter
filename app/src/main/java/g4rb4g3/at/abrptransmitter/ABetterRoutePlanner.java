@@ -63,8 +63,11 @@ public class ABetterRoutePlanner {
   private static boolean mTransmitData = false, mIsCharging = false;
   private static CarInfoManager mCarInfoManager;
 
-  private static float mKwElectricalDevice, mKwAirCon, mKwHeating;
-
+  private static Average AverageElectricalDevice = new Average();
+  private static Average AverageHeating = new Average();
+  private static Average AverageAirCon = new Average();
+  private static Average AverageEngine = new Average();
+  
   private static JSONObject jTlmObj;
 
   private static AsyncHttpClient asyncHttpClient;
@@ -149,19 +152,19 @@ public class ABetterRoutePlanner {
   }
 
   public static void updateEngineConsumption(int kw) {
-    Average.addValueToAverageConsumption(kw + mKwAirCon + mKwElectricalDevice + mKwHeating);
+    AverageEngine.addValueToAverageConsumption(kw);
   }
 
-  public static void updateElecticalDeviceConsumption(int w) {
-    mKwElectricalDevice = (float) (w / 1000.0);
+  public static void updateElectricalDeviceConsumption(int w) {
+	AverageElectricalDevice.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateAirconConsumption(int w) {
-    mKwAirCon = (float) (w / 1000.0);
+	AverageAirCon.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateHeatingConsumption(int w) {
-    mKwHeating = (float) (w / 1000.0);
+	AverageHeating.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateIsCharging(boolean isCharging) { mIsCharging =  isCharging; }
@@ -177,10 +180,13 @@ public class ABetterRoutePlanner {
     if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
-    float average = Average.getAverageConsumption();
+    float average = AverageHeating.getAverageConsumption() + AverageAirCon.getAverageConsumption() + AverageEngine.getAverageConsumption() + AverageElectricalDevice.getAverageConsumption();
     if (average > -100 && average < 100) { // regen and consumption check
       jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     }
+	else {
+	  jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0);
+	}
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
     jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
