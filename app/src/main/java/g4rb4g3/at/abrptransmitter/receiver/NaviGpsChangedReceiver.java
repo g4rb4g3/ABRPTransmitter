@@ -12,17 +12,17 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
   public static final String EXTRA_LON = "com.hkmc.telematics.gis.extra.LON";
   public static final String EXTRA_ALT = "com.hkmc.telematics.gis.extra.ALT";
 
-  private static NumberHolder mLatLonHolder = new NumberHolder();
+  private static NumberHolder sLatLonHolder = new NumberHolder();
 
   @Override
   public void onReceive(Context context, Intent intent) {
     double lat = intent.getDoubleExtra(EXTRA_LAT, 0);
     double lon = intent.getDoubleExtra(EXTRA_LON, 0);
 
-    if(mLatLonHolder.equals(lat, lon)) {
+    if(sLatLonHolder.equals(lat, lon)) {
       return;
     }
-    mLatLonHolder.setValues(lat, lon);
+    sLatLonHolder.setValues(lat, lon);
 
     double alt = intent.getDoubleExtra(EXTRA_ALT, 0);
 

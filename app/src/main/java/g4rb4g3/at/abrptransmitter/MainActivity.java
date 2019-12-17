@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
   private TextView mTvToken;
   private TextView mTvCompanionIp;
 
-  public Handler mCompMsgHandler = new Handler(Looper.getMainLooper()) {
+  public Handler companionMsgHandler = new Handler(Looper.getMainLooper()) {
     @Override
     public void handleMessage(Message msg) {
       switch (msg.what) {
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
   };
 
   private CompanionDataExchanger mCompanionDataExchanger = null;
-  private BroadcastReceiver wifiReceiver = new BroadcastReceiver() {
+  private BroadcastReceiver mWifiReceiver = new BroadcastReceiver() {
     @Override
     public void onReceive(Context context, Intent intent) {
       ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -98,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
 
     mTvCompanionIp.setText(getIPAddress());
 
-    registerReceiver(wifiReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+    registerReceiver(mWifiReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
 
-    mCompanionDataExchanger = new CompanionDataExchanger(mCompMsgHandler);
+    mCompanionDataExchanger = new CompanionDataExchanger(companionMsgHandler);
     Thread thread = new Thread(mCompanionDataExchanger);
     thread.start();
   }
@@ -114,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
       mCompanionDataExchanger = null;
     }
 
-    unregisterReceiver(wifiReceiver);
+    unregisterReceiver(mWifiReceiver);
   }
 
   private static String getIPAddress() {
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
           }
         }
       }
-    } catch (Exception e) {
+    } catch (SocketException e) {
       Log.e(TAG, "error getting ip", e);
     }
     if(ip.length() == 0) {

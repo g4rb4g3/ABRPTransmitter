@@ -50,31 +50,24 @@ public class ABetterRoutePlanner {
   public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28 = "hyundai:ioniq:17:28:other";
 
   private static final String ABETTERROUTEPLANNER_API_KEY = "INSERT YOU API KEY HERE";
-
-  private static String mAbetterrouteplanner_token = null;
-  private static GreenCarManager mGreenCarManager;
-  private static IBatteryChargeListener mBatteryChargeListener;
-  private static IEVPowerDisplayListener mEvPowerDisplayListener;
-  private static IGreenCarGwEvP06ExtraListener mGreenCarGwEvP06ExtraListener;
-
-  private static HvacManager mHvacManager;
-  private static IHvacTempListener mHvacTempListener;
-
-  private static boolean mTransmitData = false, mIsCharging = false;
-  private static CarInfoManager mCarInfoManager;
-
-  private static Average AverageElectricalDevice = new Average();
-  private static Average AverageHeating = new Average();
-  private static Average AverageAirCon = new Average();
-  private static Average AverageEngine = new Average();
-  
-  private static JSONObject jTlmObj;
-
-  private static AsyncHttpClient asyncHttpClient;
-
-  public static final long sendUpdateInterval = 5000L;
-  private static Timer tSendUpdate;
-  private static TimerTask ttSendUpdate = new TimerTask() {
+  private static final long sSendUpdateInterval = 5000L;
+  private static String sAbetterrouteplanner_token = null;
+  private static GreenCarManager sGreenCarManager;
+  private static IBatteryChargeListener sBatteryChargeListener;
+  private static IEVPowerDisplayListener sEvPowerDisplayListener;
+  private static IGreenCarGwEvP06ExtraListener sGreenCarGwEvP06ExtraListener;
+  private static HvacManager sHvacManager;
+  private static IHvacTempListener sHvacTempListener;
+  private static boolean sTransmitData = false, sIsCharging = false;
+  private static CarInfoManager sCarInfoManager;
+  private static Average sAverageElectricalDevice = new Average();
+  private static Average sAverageHeating = new Average();
+  private static Average sAverageAirCon = new Average();
+  private static Average sAverageEngine = new Average();
+  private static JSONObject sJTlmObj;
+  private static AsyncHttpClient sAsyncHttpClient;
+  private static Timer sTSendUpdate;
+  private static TimerTask sTtSendUpdate = new TimerTask() {
     @Override
     public void run() {
       try {
@@ -86,50 +79,50 @@ public class ABetterRoutePlanner {
   };
 
   static {
-    mCarInfoManager = CarInfoManager.getInstance();
-    mGreenCarManager = GreenCarManager.getInstance(null);
-    mHvacManager = HvacManager.getInstance();
-    asyncHttpClient  = new AsyncHttpClient(true, 80, 443);
-    asyncHttpClient.setTimeout((int)sendUpdateInterval - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
+    sCarInfoManager = CarInfoManager.getInstance();
+    sGreenCarManager = GreenCarManager.getInstance(null);
+    sHvacManager = HvacManager.getInstance();
+    sAsyncHttpClient = new AsyncHttpClient(true, 80, 443);
+    sAsyncHttpClient.setTimeout((int) sSendUpdateInterval - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
 
-    mBatteryChargeListener = new BatteryChargeListener();
-    mGreenCarManager.register(mBatteryChargeListener);
+    sBatteryChargeListener = new BatteryChargeListener();
+    sGreenCarManager.register(sBatteryChargeListener);
 
-    mEvPowerDisplayListener = new EVPowerDisplayListener();
-    mGreenCarManager.register(mEvPowerDisplayListener);
+    sEvPowerDisplayListener = new EVPowerDisplayListener();
+    sGreenCarManager.register(sEvPowerDisplayListener);
 
-    mGreenCarGwEvP06ExtraListener = new GreenCarGwEvP06ExtraListener();
-    mGreenCarManager.register(mGreenCarGwEvP06ExtraListener);
+    sGreenCarGwEvP06ExtraListener = new GreenCarGwEvP06ExtraListener();
+    sGreenCarManager.register(sGreenCarGwEvP06ExtraListener);
 
-    mHvacTempListener = new HvacTempListener();
-    mHvacManager.registerHvacTempListener(mHvacTempListener);
+    sHvacTempListener = new HvacTempListener();
+    sHvacManager.registerHvacTempListener(sHvacTempListener);
 
-    mIsCharging = mGreenCarManager.getChargeStatus() == 1;
+    sIsCharging = sGreenCarManager.getChargeStatus() == 1;
 
     try {
-      jTlmObj = new JSONObject();
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_CAR_MODEL, ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28);
+      sJTlmObj = new JSONObject();
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, sGreenCarManager.getBatteryChargePersent());
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, sCarInfoManager.getCarSpeed());
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, 0.0);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, sIsCharging ? 1 : 0);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_CAR_MODEL, ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28);
 
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, 0.0);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0.0);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, 0.0);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, sHvacManager.getAmbientTemperatureC());
     } catch (JSONException e) {
       Log.e(MainActivity.TAG, "error building json object", e);
     }
-    tSendUpdate = new Timer();
-    tSendUpdate.schedule(ttSendUpdate, sendUpdateInterval, sendUpdateInterval);
+    sTSendUpdate = new Timer();
+    sTSendUpdate.schedule(sTtSendUpdate, sSendUpdateInterval, sSendUpdateInterval);
   }
 
   public static void updateGps(double lat, double lon, double alt) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
     } catch (JSONException e) {
       Log.e(MainActivity.TAG, "error updating json object", e);
     }
@@ -137,7 +130,7 @@ public class ABetterRoutePlanner {
 
   public static void updateSoC(int soc) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
     } catch (JSONException e) {
       Log.e(MainActivity.TAG, "error updating json object", e);
     }
@@ -145,64 +138,65 @@ public class ABetterRoutePlanner {
 
   public static void updateTemperature(float temperature) {
     try {
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, temperature);
     } catch (JSONException e) {
       Log.e(MainActivity.TAG, "error updating json object", e);
     }
   }
 
   public static void updateEngineConsumption(int kw) {
-    AverageEngine.addValueToAverageConsumption(kw);
+    sAverageEngine.addValueToAverageConsumption(kw);
   }
 
   public static void updateElectricalDeviceConsumption(int w) {
-	AverageElectricalDevice.addValueToAverageConsumption((float) (w / 1000.0));
+    sAverageElectricalDevice.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateAirconConsumption(int w) {
-	AverageAirCon.addValueToAverageConsumption((float) (w / 1000.0));
+    sAverageAirCon.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
   public static void updateHeatingConsumption(int w) {
-	AverageHeating.addValueToAverageConsumption((float) (w / 1000.0));
+    sAverageHeating.addValueToAverageConsumption((float) (w / 1000.0));
   }
 
-  public static void updateIsCharging(boolean isCharging) { mIsCharging =  isCharging; }
+  public static void updateIsCharging(boolean isCharging) {
+    sIsCharging = isCharging;
+  }
 
   private static void sendUpdate() throws JSONException {
-    if (!mTransmitData) {
+    if (!sTransmitData) {
       return;
     }
-    if (mAbetterrouteplanner_token == null) {
+    if (sAbetterrouteplanner_token == null) {
       Log.e(MainActivity.TAG, "missing abrp token");
       return;
     }
-    if (jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && jTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
+    if (sJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && sJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
-    float average = AverageHeating.getAverageConsumption() + AverageAirCon.getAverageConsumption() + AverageEngine.getAverageConsumption() + AverageElectricalDevice.getAverageConsumption();
+    float average = sAverageHeating.getAverageConsumption() + sAverageAirCon.getAverageConsumption() + sAverageEngine.getAverageConsumption() + sAverageElectricalDevice.getAverageConsumption();
     if (average > -100 && average < 100) { // regen and consumption check
-      jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
+    } else {
+      sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0);
     }
-	else {
-	  jTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0);
-	}
-    jTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
-    jTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
-    jTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mIsCharging ? 1 : 0);
+    sJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
+    sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, sCarInfoManager.getCarSpeed());
+    sJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, sIsCharging ? 1 : 0);
 
     StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
-        .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(mAbetterrouteplanner_token)
+        .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(sAbetterrouteplanner_token)
         .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
         .append("&").append(ABETTERROUTEPLANNER_URL_TELEMETRY).append("=");
     try {
-      url.append(URLEncoder.encode(jTlmObj.toString(), "UTF-8"));
+      url.append(URLEncoder.encode(sJTlmObj.toString(), "UTF-8"));
     } catch (UnsupportedEncodingException e) {
       Log.e(MainActivity.TAG, "UnsupportedEncodingException", e);
       return;
     }
 
-    asyncHttpClient.get(url.toString(), new AsyncHttpResponseHandler() {
+    sAsyncHttpClient.get(url.toString(), new AsyncHttpResponseHandler() {
       @Override
       public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
 
@@ -222,17 +216,17 @@ public class ABetterRoutePlanner {
 
   public static void applyAbrpSettings(Context context) {
     SharedPreferences sp = context.getSharedPreferences(MainActivity.PREFERENCES_NAME, Context.MODE_PRIVATE);
-    mTransmitData = sp.getBoolean(MainActivity.PREFERENCES_TRANSMIT_DATA, false);
-    mAbetterrouteplanner_token = sp.getString(MainActivity.PREFERENCES_TOKEN, null);
+    sTransmitData = sp.getBoolean(MainActivity.PREFERENCES_TRANSMIT_DATA, false);
+    sAbetterrouteplanner_token = sp.getString(MainActivity.PREFERENCES_TOKEN, null);
   }
 
   @Override
   protected void finalize() {
-    tSendUpdate.cancel();
-    mGreenCarManager.unregister(mBatteryChargeListener);
-    mGreenCarManager.unregister(mEvPowerDisplayListener);
-    mGreenCarManager.unregister(mGreenCarGwEvP06ExtraListener);
+    sTSendUpdate.cancel();
+    sGreenCarManager.unregister(sBatteryChargeListener);
+    sGreenCarManager.unregister(sEvPowerDisplayListener);
+    sGreenCarManager.unregister(sGreenCarGwEvP06ExtraListener);
 
-    mHvacManager.unRegisterHvacTempListener(mHvacTempListener);
+    sHvacManager.unRegisterHvacTempListener(sHvacTempListener);
   }
 }

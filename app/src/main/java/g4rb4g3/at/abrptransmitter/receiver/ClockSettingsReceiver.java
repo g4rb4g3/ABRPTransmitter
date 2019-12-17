@@ -5,18 +5,18 @@ import android.content.Context;
 import android.content.Intent;
 
 public class ClockSettingsReceiver extends BroadcastReceiver {
-  private static int mCalls = 0;
-  private static long mLastCall = 0;
+  private static int sCalls = 0;
+  private static long sLastCall = 0;
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    if(System.currentTimeMillis() - mLastCall > 2000) {
-      mCalls = 0;
+    if(System.currentTimeMillis() - sLastCall > 2000) {
+      sCalls = 0;
     }
-    mLastCall = System.currentTimeMillis();
-    mCalls++;
-    if (mCalls == 2) {
-      mCalls = 0;
+    sLastCall = System.currentTimeMillis();
+    sCalls++;
+    if (sCalls == 2) {
+      sCalls = 0;
       context.startActivity(context.getPackageManager().getLaunchIntentForPackage("com.lge.ivi.engineermode"));
     }
   }
