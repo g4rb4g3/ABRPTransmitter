@@ -19,6 +19,10 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
   private TextView mTvToken;
   private TextView mTvCompanionIp;
+  private TextView mTvLog;
 
   public Handler companionMsgHandler = new Handler(Looper.getMainLooper()) {
     @Override
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
      mTvToken = findViewById(R.id.tv_abrp_token);
      mTvCompanionIp = findViewById(R.id.tv_companion_ip);
+     mTvLog = findViewById(R.id.tv_log);
   }
 
   @Override
@@ -104,6 +110,22 @@ public class MainActivity extends AppCompatActivity {
     mCompanionDataExchanger = new CompanionDataExchanger(companionMsgHandler);
     Thread thread = new Thread(mCompanionDataExchanger);
     thread.start();
+
+
+    File logFile = ((MainApplication)getApplication()).getCurrentLogFile();
+    if(logFile.exists() && logFile.length() > 0) {
+      StringBuilder stringBuilder = new StringBuilder();
+      try {
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(logFile));
+        String line;
+        while((line = bufferedReader.readLine()) != null) {
+          stringBuilder.append(line).append('\n');
+        }
+        mTvLog.setText(stringBuilder.toString());
+      } catch (IOException e) {
+        Log.e(TAG, "error reading log file", e);
+      }
+    }
   }
 
   @Override

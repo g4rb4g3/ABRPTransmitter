@@ -16,6 +16,8 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -51,6 +53,7 @@ public class ABetterRoutePlanner {
 
   private static final String ABETTERROUTEPLANNER_API_KEY = "INSERT YOU API KEY HERE";
   private static final long sSendUpdateInterval = 5000L;
+  private static final Logger LOG = LoggerFactory.getLogger(ABetterRoutePlanner.class.getSimpleName());
   private static String sAbetterrouteplanner_token = null;
   private static GreenCarManager sGreenCarManager;
   private static IBatteryChargeListener sBatteryChargeListener;
@@ -180,6 +183,11 @@ public class ABetterRoutePlanner {
       sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     } else {
       sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0);
+      LOG.debug("detected suspicious average value: " + average);
+      LOG.debug("sAverageHeating: " + sAverageHeating.getAverageConsumption());
+      LOG.debug("sAverageAirCon: " + sAverageAirCon.getAverageConsumption());
+      LOG.debug("sAverageEngine: " + sAverageEngine.getAverageConsumption());
+      LOG.debug("sAverageElectricalDevice: " + sAverageElectricalDevice.getAverageConsumption());
     }
     sJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
     sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, sCarInfoManager.getCarSpeed());
