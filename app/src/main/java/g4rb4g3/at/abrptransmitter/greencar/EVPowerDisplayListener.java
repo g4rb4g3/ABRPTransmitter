@@ -28,7 +28,7 @@ public class EVPowerDisplayListener extends IEVPowerDisplayListener.Stub {
       return;
     }
     mCrLdcPwrMonWChanged.setValues(oldValue, newValue);
-    ABetterRoutePlanner.updateElecticalDeviceConsumption(newValue * 10);
+    ABetterRoutePlanner.updateElectricalDeviceConsumption(newValue * 10);
   }
 
   @Override
