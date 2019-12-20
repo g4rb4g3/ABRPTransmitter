@@ -191,7 +191,7 @@ public class AbrpTransmitterService extends Service {
     double aircon = mGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
     double heating = mGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
     double electric = mGreenCarManager.getCrLdcPwrMonW() / 100.0;
-    double engine = mGreenCarManager.getCrMcuMotPwrAvnKw();
+    byte engine = (byte)mGreenCarManager.getCrMcuMotPwrAvnKw();
     try {
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
