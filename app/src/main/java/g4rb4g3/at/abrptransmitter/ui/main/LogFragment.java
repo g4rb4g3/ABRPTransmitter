@@ -79,7 +79,7 @@ public class LogFragment extends Fragment {
       BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
       String line;
       while ((line = bufferedReader.readLine()) != null) {
-        sb.append(line).append('\n');
+        sb.insert(0, line + '\n');
       }
       getActivity().runOnUiThread(new Runnable() {
         @Override

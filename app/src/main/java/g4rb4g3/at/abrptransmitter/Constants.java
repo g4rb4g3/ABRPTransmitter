@@ -1,7 +1,6 @@
 package g4rb4g3.at.abrptransmitter;
 
 public class Constants {
-  public static final String TAG = "ABRPTransmitter";
 
   public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
@@ -32,8 +31,7 @@ public class Constants {
   public static final String PREFERENCES_NAME = "preferences";
   public static final String PREFERENCES_TOKEN = "abrp_token";
   public static final String PREFERENCES_TRANSMIT_DATA = "transmit_data";
-
-  public static final int MSG_TOKEN = 1;
+  public static final String PREFERENCES_AUTOSTART_COMPANION = "autostart_companion";
 
   public static final int COMPANION_EXCHANGE_PORT = 6942;
 }
