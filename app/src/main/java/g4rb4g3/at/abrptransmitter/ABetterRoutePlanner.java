@@ -178,16 +178,22 @@ public class ABetterRoutePlanner {
     if (sJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && sJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
       return;
     }
-    float average = sAverageHeating.getAverageConsumption() + sAverageAirCon.getAverageConsumption() + sAverageEngine.getAverageConsumption() + sAverageElectricalDevice.getAverageConsumption();
+    // sum up all average values and use intermediate variables to be able to log suspicious values
+    float average, AverageHeating, AverageAirCon, AverageEngine, AverageElectricalDevice;
+    AverageHeating = sAverageHeating.getAverageConsumption();
+    AverageAirCon = sAverageAirCon.getAverageConsumption();
+    AverageEngine = sAverageEngine.getAverageConsumption();
+    AverageElectricalDevice = sAverageElectricalDevice.getAverageConsumption();
+    average = AverageHeating + AverageAirCon + AverageEngine + AverageElectricalDevice;
     if (average > -100 && average < 100) { // regen and consumption check
       sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     } else {
       sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, 0);
       LOG.debug("detected suspicious average value: " + average);
-      LOG.debug("sAverageHeating: " + sAverageHeating.getAverageConsumption());
-      LOG.debug("sAverageAirCon: " + sAverageAirCon.getAverageConsumption());
-      LOG.debug("sAverageEngine: " + sAverageEngine.getAverageConsumption());
-      LOG.debug("sAverageElectricalDevice: " + sAverageElectricalDevice.getAverageConsumption());
+      LOG.debug("sAverageHeating: " + AverageHeating);
+      LOG.debug("sAverageAirCon: " + AverageAirCon);
+      LOG.debug("sAverageEngine: " + AverageEngine);
+      LOG.debug("sAverageElectricalDevice: " + AverageElectricalDevice);
     }
     sJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
     sJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, sCarInfoManager.getCarSpeed());
