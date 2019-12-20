@@ -9,11 +9,12 @@ import pl.brightinventions.slf4android.LoggerConfiguration;
 
 public class MainApplication extends Application {
   private FileLogHandlerConfiguration mFileHandler;
+
   @Override
   public void onCreate() {
     super.onCreate();
 
-   mFileHandler = LoggerConfiguration.fileLogHandler(this);
+    mFileHandler = LoggerConfiguration.fileLogHandler(this);
     LoggerConfiguration.configuration().addHandlerToRootLogger(mFileHandler);
   }
 

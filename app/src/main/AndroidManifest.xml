@@ -35,6 +35,7 @@
                 <action android:name="com.lge.ivi.action.KEY_EV"/>
             </intent-filter>
         </receiver>
+        <service android:name=".service.AbrpTransmitterService" android:exported="false"/>
     </application>
 
 </manifest>

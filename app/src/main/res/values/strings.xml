@@ -5,4 +5,6 @@
     <string name="transmit_data">Transmit data</string>
     <string name="saved">Settings saved successfully!</string>
     <string name="companion_ip">Companion IP:</string>
+    <string name="error_getting_ip">Error getting IP addresses.</string>
+    <string name="error_reading_log">Error reading log file.</string>
 </resources>
