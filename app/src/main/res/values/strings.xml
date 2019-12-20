@@ -7,4 +7,6 @@
     <string name="companion_ip">Companion IP:</string>
     <string name="error_getting_ip">Error getting IP addresses.</string>
     <string name="error_reading_log">Error reading log file.</string>
+    <string name="tab_settings">Settings</string>
+    <string name="tab_logs">Logs</string>
 </resources>
