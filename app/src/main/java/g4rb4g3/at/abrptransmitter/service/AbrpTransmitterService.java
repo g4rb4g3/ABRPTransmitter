@@ -8,7 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.lge.ivi.carinfo.CarInfoManager;
 import com.lge.ivi.greencar.GreenCarManager;
