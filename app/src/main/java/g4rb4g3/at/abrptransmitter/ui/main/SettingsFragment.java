@@ -1,7 +1,12 @@
 package g4rb4g3.at.abrptransmitter.ui.main;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,8 +16,16 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.SocketException;
+import java.util.List;
+
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.Utils;
+import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_AUTOSTART_COMPANION;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
@@ -20,13 +33,39 @@ import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
 public class SettingsFragment extends Fragment {
+  private static final Logger sLog = LoggerFactory.getLogger(AbrpTransmitterService.class.getSimpleName());
   private TextView mTvToken;
+  private TextView mTvCompanionIp;
   private Button mBtSave;
   private CheckBox mCbTransmitData;
   private CheckBox mCbAutostartCompanion;
   private SharedPreferences mSharedPreferences;
-
   private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener;
+
+  private BroadcastReceiver mWifiReceiver = new BroadcastReceiver() {
+    @Override
+    public void onReceive(Context context, Intent intent) {
+      ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+      NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+      if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+        try {
+          StringBuilder sb = new StringBuilder();
+          List<String> ips = Utils.getIPAddresses();
+          for (String ip : ips) {
+            if (sb.length() > 0) {
+              sb.append(" or ");
+            }
+            sb.append(ip);
+          }
+          mTvCompanionIp.setText(sb.toString());
+        } catch (SocketException e) {
+          String msg = getString(R.string.error_getting_ip);
+          sLog.error(msg, e);
+          mTvCompanionIp.setText(msg);
+        }
+      }
+    }
+  };
 
   public SettingsFragment() {
     // Required empty public constructor
@@ -50,6 +89,7 @@ public class SettingsFragment extends Fragment {
 
     mBtSave = view.findViewById(R.id.save);
     mTvToken = view.findViewById(R.id.tv_abrp_token);
+    mTvCompanionIp = view.findViewById(R.id.tv_companion_ip);
     mCbTransmitData = view.findViewById(R.id.cb_transmit);
     mCbAutostartCompanion = view.findViewById(R.id.cb_autostart_companion);
 
@@ -90,11 +130,23 @@ public class SettingsFragment extends Fragment {
   }
 
   @Override
+  public void onResume() {
+    super.onResume();
+    getContext().registerReceiver(mWifiReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    getContext().unregisterReceiver(mWifiReceiver);
+  }
+
+  @Override
   public void setUserVisibleHint(boolean isVisibleToUser) {
     super.setUserVisibleHint(isVisibleToUser);
 
-    if(mOnSharedPreferenceChangeListener != null) {
-      if(isVisibleToUser) {
+    if (mOnSharedPreferenceChangeListener != null) {
+      if (isVisibleToUser) {
         mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
       } else {
         mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
