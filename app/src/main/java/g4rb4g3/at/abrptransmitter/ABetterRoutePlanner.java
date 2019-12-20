@@ -179,12 +179,11 @@ public class ABetterRoutePlanner {
       return;
     }
     // sum up all average values and use intermediate variables to be able to log suspicious values
-    float average, AverageHeating, AverageAirCon, AverageEngine, AverageElectricalDevice;
-    AverageHeating = sAverageHeating.getAverageConsumption();
-    AverageAirCon = sAverageAirCon.getAverageConsumption();
-    AverageEngine = sAverageEngine.getAverageConsumption();
-    AverageElectricalDevice = sAverageElectricalDevice.getAverageConsumption();
-    average = AverageHeating + AverageAirCon + AverageEngine + AverageElectricalDevice;
+    float AverageHeating = sAverageHeating.getAverageConsumption();
+    float AverageAirCon = sAverageAirCon.getAverageConsumption();
+    float AverageEngine = sAverageEngine.getAverageConsumption();
+    float AverageElectricalDevice = sAverageElectricalDevice.getAverageConsumption();
+    float average = AverageHeating + AverageAirCon + AverageEngine + AverageElectricalDevice;
     if (average > -100 && average < 100) { // regen and consumption check
       sJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, average);
     } else {
