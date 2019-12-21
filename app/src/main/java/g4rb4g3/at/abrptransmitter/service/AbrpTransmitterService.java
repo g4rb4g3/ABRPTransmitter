@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import androidx.annotation.Nullable;
 
 import com.lge.ivi.carinfo.CarInfoManager;
 import com.lge.ivi.greencar.GreenCarManager;
@@ -24,11 +23,16 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import androidx.annotation.Nullable;
 import cz.msebera.android.httpclient.Header;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_KEY;
@@ -50,16 +54,17 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TOKEN
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_ALT;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LAT;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
+import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_AVERAGE_COLLECTOR;
+import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_SEND_UPDATE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
-import static g4rb4g3.at.abrptransmitter.Constants.SEND_UPDATE_INTERVAL;
 
 public class AbrpTransmitterService extends Service {
   private static final Logger sLog = LoggerFactory.getLogger(AbrpTransmitterService.class.getSimpleName());
   private final IBinder mBinder = new AbrpTransmitterBinder();
   private List<Handler> mRegisteredHandlers = new ArrayList<>();
-  private Timer mTimerSendUpdate = new Timer();
+  private ScheduledExecutorService mScheduledExecutorService = null;
   private JSONObject mJTlmObj = new JSONObject();
   private GreenCarManager mGreenCarManager = null;
   private CarInfoManager mCarInfoManager = null;
@@ -79,16 +84,6 @@ public class AbrpTransmitterService extends Service {
     @Override
     public boolean getUseSynchronousMode() {
       return false;
-    }
-  };
-  private TimerTask mTimerTaskSendUpdate = new TimerTask() {
-    @Override
-    public void run() {
-      try {
-        sendUpdate();
-      } catch (JSONException e) {
-        sLog.error("error sending update", e);
-      }
     }
   };
 
@@ -112,8 +107,10 @@ public class AbrpTransmitterService extends Service {
     } catch (JSONException e) {
       sLog.error("error building json object", e);
     }
-    mAsyncHttpClient.setTimeout((int) SEND_UPDATE_INTERVAL - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
-    mTimerSendUpdate.schedule(mTimerTaskSendUpdate, SEND_UPDATE_INTERVAL, SEND_UPDATE_INTERVAL);
+    mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
+    mScheduledExecutorService = Executors.newScheduledThreadPool(2);
+    mScheduledExecutorService.scheduleWithFixedDelay(new AbrpUpdater(), INTERVAL_SEND_UPDATE, INTERVAL_SEND_UPDATE, TimeUnit.MILLISECONDS);
+    mScheduledExecutorService.scheduleAtFixedRate(new AverageCollector(mGreenCarManager), INTERVAL_AVERAGE_COLLECTOR, INTERVAL_AVERAGE_COLLECTOR, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -137,8 +134,7 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public void onDestroy() {
-    super.onDestroy();
-
+    mScheduledExecutorService.shutdownNow();
   }
 
   public void registerHandler(Handler handler) {
@@ -158,57 +154,101 @@ public class AbrpTransmitterService extends Service {
     return tlmObj;
   }
 
-  private void sendUpdate() throws JSONException {
-    if (!mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false)) {
-      return;
-    }
-    if (mJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && mJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
-      return;
-    }
-    String token = mSharedPreferences.getString(PREFERENCES_TOKEN, null);
-    if (token == null || token.length() == 0) {
-      sLog.error("transmitting data enabled but missing abrp token");
-      return;
-    }
-    if (!updateTelemetryObject()) {
-      return;
-    }
-    StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
-        .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
-        .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
-        .append("&").append(ABETTERROUTEPLANNER_URL_TELEMETRY).append("=");
-    try {
-      url.append(URLEncoder.encode(mJTlmObj.toString(), "UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      sLog.error(e.getMessage(), e);
-      return;
+  private static class AverageCollector implements Runnable {
+    private static LinkedHashMap<Long, Double> sConsumptionCollector = new LinkedHashMap<>();
+    private static GreenCarManager sGreenCarManager;
+    private static boolean sCollect = true;
+
+    private AverageCollector(GreenCarManager greenCarManager) {
+      sGreenCarManager = greenCarManager;
     }
 
-    mAsyncHttpClient.get(url.toString(), mAsyncHttpResponseHandler);
-  }
-
-  private boolean updateTelemetryObject() {
-    double aircon = mGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
-    double heating = mGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
-    double electric = mGreenCarManager.getCrLdcPwrMonW() / 100.0;
-    byte engine = (byte)mGreenCarManager.getCrMcuMotPwrAvnKw();
-    try {
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, aircon + heating + electric + engine);
-      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
-      return true;
-    } catch (JSONException e) {
-      sLog.error("error updating json object with vehicle data", e);
+    public static double getAverage() {
+      if (sConsumptionCollector.size() == 0) {
+        return 0.0;
+      }
+      sCollect = false;
+      double average;
+      if (sConsumptionCollector.size() == 1) {
+        average = sConsumptionCollector.values().iterator().next();
+      } else {
+        long start = Collections.min(sConsumptionCollector.keySet());
+        long end = Collections.max(sConsumptionCollector.keySet());
+        long duration = end - start;
+        double consumptionSum = 0;
+        double lastConsumption = sConsumptionCollector.get(start);
+        sConsumptionCollector.remove(start);
+        for (Map.Entry<Long, Double> e : sConsumptionCollector.entrySet()) {
+          end = e.getKey();
+          consumptionSum += lastConsumption * (end - start);
+          start = end;
+          lastConsumption = e.getValue();
+        }
+        average = consumptionSum / duration;
+      }
+      sConsumptionCollector.clear();
+      sCollect = true;
+      return average;
     }
-    return false;
+
+    @Override
+    public void run() {
+      if (!sCollect) {
+        return;
+      }
+      double aircon = sGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
+      double heating = sGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
+      double electric = sGreenCarManager.getCrLdcPwrMonW() / 100.0;
+      byte engine = (byte) sGreenCarManager.getCrMcuMotPwrAvnKw();
+
+      sConsumptionCollector.put(System.currentTimeMillis(), aircon + heating + electric + engine);
+    }
   }
 
   public class AbrpTransmitterBinder extends Binder {
     public AbrpTransmitterService getService() {
       return AbrpTransmitterService.this;
+    }
+  }
+
+  private class AbrpUpdater implements Runnable {
+    @Override
+    public void run() {
+      try {
+        if (!mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false)) {
+          return;
+        }
+        if (mJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LAT) == 0.0 && mJTlmObj.getDouble(ABETTERROUTEPLANNER_JSON_GPS_LON) == 0.0) {
+          return;
+        }
+        String token = mSharedPreferences.getString(PREFERENCES_TOKEN, null);
+        if (token == null || token.length() == 0) {
+          sLog.error("transmitting data enabled but missing abrp token");
+          return;
+        }
+
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, AverageCollector.getAverage());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
+
+        StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
+            .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
+            .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
+            .append("&").append(ABETTERROUTEPLANNER_URL_TELEMETRY).append("=");
+        try {
+          url.append(URLEncoder.encode(mJTlmObj.toString(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+          sLog.error(e.getMessage(), e);
+          return;
+        }
+
+        mAsyncHttpClient.get(url.toString(), mAsyncHttpResponseHandler);
+      } catch (JSONException e) {
+        sLog.error("error sending update", e);
+      }
     }
   }
 }
