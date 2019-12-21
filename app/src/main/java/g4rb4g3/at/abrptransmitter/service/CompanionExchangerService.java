@@ -85,16 +85,16 @@ public class CompanionExchangerService extends Service {
     mSharedPreferences = getApplicationContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
     mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
-    if(mStart) {
+    if (mStart) {
       mThread.start();
     }
 
     mSharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
       @Override
       public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if(PREFERENCES_AUTOSTART_COMPANION.equals(key)) {
+        if (PREFERENCES_AUTOSTART_COMPANION.equals(key)) {
           mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
-          if(mStart) {
+          if (mStart) {
             mThread.start();
           } else {
             stop();

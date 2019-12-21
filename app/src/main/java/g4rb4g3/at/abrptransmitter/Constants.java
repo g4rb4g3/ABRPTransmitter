@@ -26,7 +26,8 @@ public class Constants {
   public static final String EXTRA_LON = "com.hkmc.telematics.gis.extra.LON";
   public static final String EXTRA_ALT = "com.hkmc.telematics.gis.extra.ALT";
 
-  public static final long SEND_UPDATE_INTERVAL = 5000L;
+  public static final long INTERVAL_SEND_UPDATE = 5000L;
+  public static final long INTERVAL_AVERAGE_COLLECTOR = 500L;
 
   public static final String PREFERENCES_NAME = "preferences";
   public static final String PREFERENCES_TOKEN = "abrp_token";
