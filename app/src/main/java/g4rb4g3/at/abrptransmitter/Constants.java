@@ -35,4 +35,6 @@ public class Constants {
   public static final String PREFERENCES_AUTOSTART_COMPANION = "autostart_companion";
 
   public static final int COMPANION_EXCHANGE_PORT = 6942;
+
+  public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
 }

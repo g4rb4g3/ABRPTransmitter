@@ -4,10 +4,13 @@ package g4rb4g3.at.abrptransmitter.service;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 
 import com.lge.ivi.carinfo.CarInfoManager;
 import com.lge.ivi.greencar.GreenCarManager;
@@ -23,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -34,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.Nullable;
 import cz.msebera.android.httpclient.Header;
+import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_KEY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CAR_MODEL;
@@ -56,6 +61,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LAT;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_AVERAGE_COLLECTOR;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_SEND_UPDATE;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
@@ -86,6 +92,18 @@ public class AbrpTransmitterService extends Service {
       return false;
     }
   };
+  private boolean mWifiConnected = false;
+  private Handler mHandler = new Handler(Looper.getMainLooper()) {
+    @Override
+    public void handleMessage(Message msg) {
+      switch (msg.what) {
+        case MESSAGE_CONNECTIVITY_CHANGED:
+          mWifiConnected = ((Collection<String>) msg.obj).size() > 0;
+          break;
+      }
+    }
+  };
+  private ConnectivityChangeReceiver mConnectivityChangeReceiver = new ConnectivityChangeReceiver(mHandler);
 
   @Nullable
   @Override
@@ -108,6 +126,7 @@ public class AbrpTransmitterService extends Service {
       sLog.error("error building json object", e);
     }
     mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
+    getApplicationContext().registerReceiver(mConnectivityChangeReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     mScheduledExecutorService = Executors.newScheduledThreadPool(2);
     mScheduledExecutorService.scheduleWithFixedDelay(new AbrpUpdater(), INTERVAL_SEND_UPDATE, INTERVAL_SEND_UPDATE, TimeUnit.MILLISECONDS);
     mScheduledExecutorService.scheduleAtFixedRate(new AverageCollector(mGreenCarManager), INTERVAL_AVERAGE_COLLECTOR, INTERVAL_AVERAGE_COLLECTOR, TimeUnit.MILLISECONDS);
@@ -135,6 +154,7 @@ public class AbrpTransmitterService extends Service {
   @Override
   public void onDestroy() {
     mScheduledExecutorService.shutdownNow();
+    getApplicationContext().unregisterReceiver(mConnectivityChangeReceiver);
   }
 
   public void registerHandler(Handler handler) {
@@ -215,6 +235,9 @@ public class AbrpTransmitterService extends Service {
     @Override
     public void run() {
       try {
+        if (!mWifiConnected) {
+          return;
+        }
         if (!mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false)) {
           return;
         }
