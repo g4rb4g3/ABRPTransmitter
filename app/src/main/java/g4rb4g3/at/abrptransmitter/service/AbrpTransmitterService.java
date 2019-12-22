@@ -1,6 +1,7 @@
 package g4rb4g3.at.abrptransmitter.service;
 
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +38,9 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import cz.msebera.android.httpclient.Header;
+import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_KEY;
@@ -62,6 +65,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_AVERAGE_COLLECTOR;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_SEND_UPDATE;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
+import static g4rb4g3.at.abrptransmitter.Constants.NOTIFICATION_ID_ABRPTRANSMITTERSERVICE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
@@ -113,6 +117,13 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public void onCreate() {
+    Notification notification = new NotificationCompat.Builder(this, null)
+        .setContentTitle(getString(R.string.app_name))
+        .setSmallIcon(R.mipmap.ic_launcher)
+        .setPriority(NotificationCompat.PRIORITY_MAX)
+        .build();
+    startForeground(NOTIFICATION_ID_ABRPTRANSMITTERSERVICE, notification);
+
     mSharedPreferences = getApplicationContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     mGreenCarManager = GreenCarManager.getInstance(getApplicationContext());
     mCarInfoManager = CarInfoManager.getInstance();
@@ -148,7 +159,7 @@ public class AbrpTransmitterService extends Service {
       }
     }
 
-    return START_NOT_STICKY;
+    return START_STICKY;
   }
 
   @Override

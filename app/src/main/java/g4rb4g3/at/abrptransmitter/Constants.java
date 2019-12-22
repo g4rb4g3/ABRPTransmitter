@@ -37,4 +37,6 @@ public class Constants {
   public static final int COMPANION_EXCHANGE_PORT = 6942;
 
   public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
+
+  public static final int NOTIFICATION_ID_ABRPTRANSMITTERSERVICE = 1;
 }
