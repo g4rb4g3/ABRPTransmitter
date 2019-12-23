@@ -132,24 +132,13 @@ public class SettingsFragment extends Fragment {
   public void onResume() {
     super.onResume();
     getContext().registerReceiver(mConnectivityChangedReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+    mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 
   @Override
   public void onPause() {
     super.onPause();
     getContext().unregisterReceiver(mConnectivityChangedReceiver);
-  }
-
-  @Override
-  public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
-
-    if (mOnSharedPreferenceChangeListener != null) {
-      if (isVisibleToUser) {
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-      } else {
-        mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
-      }
-    }
+    mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 }
