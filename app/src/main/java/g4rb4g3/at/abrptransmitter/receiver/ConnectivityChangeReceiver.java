@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
 
@@ -24,7 +25,7 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
   private static final Logger sLog = LoggerFactory.getLogger(ConnectivityChangeReceiver.class.getSimpleName());
   private Handler mHandler;
 
-  public ConnectivityChangeReceiver(Handler handler) {
+  public ConnectivityChangeReceiver(@NonNull Handler handler) {
     mHandler = handler;
   }
 
