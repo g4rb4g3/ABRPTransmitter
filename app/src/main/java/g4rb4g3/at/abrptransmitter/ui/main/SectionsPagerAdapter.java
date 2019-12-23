@@ -27,6 +27,8 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         return SettingsFragment.newInstance();
       case 1:
         return LogFragment.newInstance();
+      case 2:
+        return InformationFragment.newInstance();
       default:
         throw new RuntimeException("unknown fragment called");
     }
