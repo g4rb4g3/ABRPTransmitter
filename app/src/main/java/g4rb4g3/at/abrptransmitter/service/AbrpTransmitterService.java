@@ -166,6 +166,7 @@ public class AbrpTransmitterService extends Service {
   public void onDestroy() {
     mScheduledExecutorService.shutdownNow();
     getApplicationContext().unregisterReceiver(mConnectivityChangeReceiver);
+    stopForeground(true);
   }
 
   public void registerHandler(Handler handler) {
