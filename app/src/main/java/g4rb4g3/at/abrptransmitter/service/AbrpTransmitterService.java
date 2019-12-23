@@ -41,6 +41,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import cz.msebera.android.httpclient.Header;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_KEY;
@@ -65,6 +66,8 @@ import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_AVERAGE_COLLECTOR;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_SEND_UPDATE;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_ERROR_ABRPSERVICE;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_UPDATE_SENT;
 import static g4rb4g3.at.abrptransmitter.Constants.NOTIFICATION_ID_ABRPTRANSMITTERSERVICE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -84,6 +87,7 @@ public class AbrpTransmitterService extends Service {
   private AsyncHttpResponseHandler mAsyncHttpResponseHandler = new AsyncHttpResponseHandler() {
     @Override
     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+      notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
     }
 
     @Override
@@ -186,6 +190,15 @@ public class AbrpTransmitterService extends Service {
     return tlmObj;
   }
 
+  private void notifyHandlers(int what, Object obj) {
+    Message msg = new Message();
+    msg.what = what;
+    msg.obj = obj;
+    for (Handler handler : mRegisteredHandlers) {
+      handler.sendMessage(msg);
+    }
+  }
+
   private static class AverageCollector implements Runnable {
     private static LinkedHashMap<Long, Double> sConsumptionCollector = new LinkedHashMap<>();
     private static GreenCarManager sGreenCarManager;
@@ -248,6 +261,7 @@ public class AbrpTransmitterService extends Service {
     public void run() {
       try {
         if (!mWifiConnected) {
+          notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, getString(R.string.no_wifi_ip));
           return;
         }
         if (!mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false)) {
@@ -258,7 +272,9 @@ public class AbrpTransmitterService extends Service {
         }
         String token = mSharedPreferences.getString(PREFERENCES_TOKEN, null);
         if (token == null || token.length() == 0) {
-          sLog.error("transmitting data enabled but missing abrp token");
+          String msg = getString(R.string.token_missing);
+          notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, msg);
+          sLog.error(msg);
           return;
         }
 

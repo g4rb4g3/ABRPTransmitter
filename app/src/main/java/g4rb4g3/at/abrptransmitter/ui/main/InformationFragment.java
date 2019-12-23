@@ -12,16 +12,23 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService.AbrpTransmitterBinder;
+
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_ERROR_ABRPSERVICE;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_UPDATE_SENT;
 
 public class InformationFragment extends Fragment {
 
   private AbrpTransmitterService mService;
   private boolean mBound = false;
+  private TextView mTvLastErrorMsg;
+  private TextView mTvLastUpdateSentMsg;
 
   private ServiceConnection mServiceConnection = new ServiceConnection() {
     @Override
@@ -39,8 +46,25 @@ public class InformationFragment extends Fragment {
 
   private Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
-    public void handleMessage(Message msg) {
-
+    public void handleMessage(final Message msg) {
+      switch(msg.what) {
+        case MESSAGE_LAST_ERROR_ABRPSERVICE:
+          getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              mTvLastErrorMsg.setText(Utils.getTimestamp() + ": " + (String)msg.obj);
+            }
+          });
+          break;
+        case MESSAGE_LAST_UPDATE_SENT:
+          getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+              mTvLastUpdateSentMsg.setText((String)msg.obj);
+            }
+          });
+          break;
+      }
     }
   };
 
@@ -71,7 +95,10 @@ public class InformationFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     // Inflate the layout for this fragment
-    return inflater.inflate(R.layout.fragment_information, container, false);
+    View view = inflater.inflate(R.layout.fragment_information, container, false);
+    mTvLastErrorMsg = view.findViewById(R.id.tv_last_error_msg);
+    mTvLastUpdateSentMsg = view.findViewById(R.id.tv_last_update_sent_msg)
+    return view;
   }
 
   @Override

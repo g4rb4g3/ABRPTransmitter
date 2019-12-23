@@ -7,8 +7,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import cz.msebera.android.httpclient.conn.util.InetAddressUtils;
@@ -43,5 +45,9 @@ public class Utils {
       }
     }
     return sb.toString();
+  }
+
+  public static String getTimestamp() {
+    return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date());
   }
 }
