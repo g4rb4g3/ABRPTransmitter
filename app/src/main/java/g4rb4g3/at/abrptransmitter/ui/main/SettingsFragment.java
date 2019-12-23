@@ -123,8 +123,6 @@ public class SettingsFragment extends Fragment {
         }
       }
     };
-
-    mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
     return view;
   }
 
