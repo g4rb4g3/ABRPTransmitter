@@ -181,13 +181,8 @@ public class AbrpTransmitterService extends Service {
     mRegisteredHandlers.remove(handler);
   }
 
-  public JSONObject getTelemetryObject() throws JSONException {
-    JSONObject tlmObj = new JSONObject();
-    for (Iterator<String> iterator = mJTlmObj.keys(); iterator.hasNext(); ) {
-      String key = iterator.next();
-      tlmObj.put(key, mJTlmObj.optJSONObject(key));
-    }
-    return tlmObj;
+  public JSONObject getTelemetryObject() {
+    return mJTlmObj;
   }
 
   private void notifyHandlers(int what, Object obj) {

@@ -14,6 +14,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.json.JSONException;
+
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
@@ -29,30 +31,16 @@ public class InformationFragment extends Fragment {
   private boolean mBound = false;
   private TextView mTvLastErrorMsg;
   private TextView mTvLastUpdateSentMsg;
-
-  private ServiceConnection mServiceConnection = new ServiceConnection() {
-    @Override
-    public void onServiceConnected(ComponentName name, IBinder service) {
-      AbrpTransmitterBinder binder = (AbrpTransmitterBinder) service;
-      mService = binder.getService();
-      mBound = true;
-    }
-
-    @Override
-    public void onServiceDisconnected(ComponentName name) {
-      mBound = false;
-    }
-  };
-
+  private TextView mTvLastDataSentMsg;
   private Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
     public void handleMessage(final Message msg) {
-      switch(msg.what) {
+      switch (msg.what) {
         case MESSAGE_LAST_ERROR_ABRPSERVICE:
           getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              mTvLastErrorMsg.setText(Utils.getTimestamp() + ": " + (String)msg.obj);
+              mTvLastErrorMsg.setText(Utils.getTimestamp() + ": " + (String) msg.obj);
             }
           });
           break;
@@ -60,11 +48,33 @@ public class InformationFragment extends Fragment {
           getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              mTvLastUpdateSentMsg.setText((String)msg.obj);
+              mTvLastUpdateSentMsg.setText((String) msg.obj);
+              String tlm;
+              try {
+                tlm = mService.getTelemetryObject().toString(2);
+              } catch (JSONException e) {
+                tlm = getString(R.string.error_getting_tlm_object);
+              }
+              mTvLastDataSentMsg.setText(tlm);
             }
           });
           break;
       }
+    }
+  };
+  private ServiceConnection mServiceConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+      AbrpTransmitterBinder binder = (AbrpTransmitterBinder) service;
+      mService = binder.getService();
+      mBound = true;
+
+      mService.registerHandler(mHandler);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+      mBound = false;
     }
   };
 
@@ -80,9 +90,6 @@ public class InformationFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    Intent intent = new Intent(getContext(), AbrpTransmitterService.class);
-    getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
   }
 
   @Override
@@ -97,7 +104,8 @@ public class InformationFragment extends Fragment {
     // Inflate the layout for this fragment
     View view = inflater.inflate(R.layout.fragment_information, container, false);
     mTvLastErrorMsg = view.findViewById(R.id.tv_last_error_msg);
-    mTvLastUpdateSentMsg = view.findViewById(R.id.tv_last_update_sent_msg)
+    mTvLastUpdateSentMsg = view.findViewById(R.id.tv_last_update_sent_msg);
+    mTvLastDataSentMsg = view.findViewById(R.id.tv_last_data_sent_msg);
     return view;
   }
 
@@ -114,12 +122,16 @@ public class InformationFragment extends Fragment {
   @Override
   public void onResume() {
     super.onResume();
-    mService.registerHandler(mHandler);
+
+    Intent intent = new Intent(getContext(), AbrpTransmitterService.class);
+    getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    mService.unregisterHandler(mHandler);
+    if (mBound) {
+      mService.unregisterHandler(mHandler);
+    }
   }
 }

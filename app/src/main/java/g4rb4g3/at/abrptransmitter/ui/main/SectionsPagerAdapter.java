@@ -12,7 +12,7 @@ import g4rb4g3.at.abrptransmitter.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
   @StringRes
-  private static final int[] TAB_TITLES = new int[]{R.string.tab_settings, R.string.tab_logs};
+  private static final int[] TAB_TITLES = new int[]{R.string.tab_settings, R.string.tab_logs, R.string.tab_information};
   private final Context mContext;
 
   public SectionsPagerAdapter(Context context, FragmentManager fm) {
