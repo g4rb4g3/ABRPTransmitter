@@ -42,6 +42,8 @@ public class LogFragment extends Fragment {
     mTvLog = view.findViewById(R.id.tv_log);
 
     File logFile = ((MainApplication) getActivity().getApplication()).getCurrentLogFile();
+    showLog(logFile);
+
     final String parent = logFile.getParent();
     mFileObserver = new FileObserver(parent, FileObserver.MODIFY) {
       @Override
@@ -55,22 +57,19 @@ public class LogFragment extends Fragment {
     };
     return view;
   }
+  
+  @Override
+  public void onResume() {
+    super.onResume();
+
+    mFileObserver.startWatching();
+  }
 
   @Override
-  public void setUserVisibleHint(boolean isVisibleToUser) {
-    super.setUserVisibleHint(isVisibleToUser);
+  public void onPause() {
+    super.onPause();
 
-    if (mFileObserver != null) {
-      if (isVisibleToUser) {
-        if (mTvLog.getText().length() == 0) {
-          File logFile = ((MainApplication) getActivity().getApplication()).getCurrentLogFile();
-          showLog(logFile);
-        }
-        mFileObserver.startWatching();
-      } else {
-        mFileObserver.stopWatching();
-      }
-    }
+    mFileObserver.stopWatching();
   }
 
   private void showLog(File file) {
