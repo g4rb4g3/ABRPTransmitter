@@ -91,7 +91,9 @@ public class AbrpTransmitterService extends Service {
 
     @Override
     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-      sLog.error("failed to send update http error " + statusCode, error);
+      String msg = getString(R.string.error_sending_update) + statusCode;
+      sLog.error(msg, error);
+      notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, msg);
     }
 
     @Override
