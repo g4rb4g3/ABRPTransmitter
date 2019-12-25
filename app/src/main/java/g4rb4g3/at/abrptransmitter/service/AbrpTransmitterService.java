@@ -29,7 +29,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,20 +148,21 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    double lat = intent.getDoubleExtra(EXTRA_LAT, 0.0);
-    double lon = intent.getDoubleExtra(EXTRA_LON, 0.0);
-    double alt = intent.getDoubleExtra(EXTRA_ALT, 0.0);
+    if (intent != null) {
+      double lat = intent.getDoubleExtra(EXTRA_LAT, 0.0);
+      double lon = intent.getDoubleExtra(EXTRA_LON, 0.0);
+      double alt = intent.getDoubleExtra(EXTRA_ALT, 0.0);
 
-    if (lat != 0.0 && lon != 0.0) {
-      try {
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
-      } catch (JSONException e) {
-        sLog.error("error updating json object with gps data", e);
+      if (lat != 0.0 && lon != 0.0) {
+        try {
+          mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
+          mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
+          mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
+        } catch (JSONException e) {
+          sLog.error("error updating json object with gps data", e);
+        }
       }
     }
-
     return START_STICKY;
   }
 
