@@ -43,7 +43,7 @@ public class CompanionExchangerService extends Service {
           BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
           String line;
-          while ((line = in.readLine()) != null) {
+          while ((line = in.readLine()) != null && mStart) {
             try {
               JSONObject jsonObject = new JSONObject(line);
               for (Iterator<String> iterator = jsonObject.keys(); iterator.hasNext(); ) {
@@ -72,7 +72,7 @@ public class CompanionExchangerService extends Service {
       }
     }
   };
-  private Thread mThread = new Thread(mRunnable);
+
 
   private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
     @Override
@@ -80,7 +80,7 @@ public class CompanionExchangerService extends Service {
       if (PREFERENCES_AUTOSTART_COMPANION.equals(key)) {
         mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
         if (mStart) {
-          mThread.start();
+          start();
         } else {
           stop();
         }
@@ -100,7 +100,7 @@ public class CompanionExchangerService extends Service {
 
     mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
     if (mStart) {
-      mThread.start();
+      start();
     }
 
     mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
@@ -110,6 +110,11 @@ public class CompanionExchangerService extends Service {
   public void onDestroy() {
     stop();
     mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
+  }
+
+  private void start() {
+    Thread thread = new Thread(mRunnable);
+    thread.start();
   }
 
   private void stop() {
