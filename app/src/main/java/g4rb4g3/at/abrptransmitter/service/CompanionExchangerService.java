@@ -74,6 +74,20 @@ public class CompanionExchangerService extends Service {
   };
   private Thread mThread = new Thread(mRunnable);
 
+  private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+      if (PREFERENCES_AUTOSTART_COMPANION.equals(key)) {
+        mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
+        if (mStart) {
+          mThread.start();
+        } else {
+          stop();
+        }
+      }
+    }
+  };
+
   @Nullable
   @Override
   public IBinder onBind(Intent intent) {
@@ -89,24 +103,13 @@ public class CompanionExchangerService extends Service {
       mThread.start();
     }
 
-    mSharedPreferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (PREFERENCES_AUTOSTART_COMPANION.equals(key)) {
-          mStart = mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false);
-          if (mStart) {
-            mThread.start();
-          } else {
-            stop();
-          }
-        }
-      }
-    });
+    mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 
   @Override
   public void onDestroy() {
     stop();
+    mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 
   private void stop() {

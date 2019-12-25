@@ -1,11 +1,13 @@
 package g4rb4g3.at.abrptransmitter;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
+import g4rb4g3.at.abrptransmitter.service.CompanionExchangerService;
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,5 +21,8 @@ public class MainActivity extends AppCompatActivity {
     viewPager.setAdapter(sectionsPagerAdapter);
     TabLayout tabs = findViewById(R.id.tabs);
     tabs.setupWithViewPager(viewPager);
+
+    Intent intent = new Intent(this, CompanionExchangerService.class);
+    startService(intent);
   }
 }
