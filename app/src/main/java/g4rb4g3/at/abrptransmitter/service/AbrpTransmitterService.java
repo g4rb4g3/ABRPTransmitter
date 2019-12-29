@@ -24,6 +24,7 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -91,9 +92,12 @@ public class AbrpTransmitterService extends Service {
 
     @Override
     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-      String msg = getString(R.string.error_sending_update) + statusCode;
-      sLog.error(msg, error);
-      notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, msg);
+      if (error instanceof IOException && error.getMessage().startsWith("UnknownHostException")) {
+        sLog.info(error.getMessage());
+      } else {
+        sLog.error("error sending update", error);
+      }
+      notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, error.getLocalizedMessage());
     }
 
     @Override

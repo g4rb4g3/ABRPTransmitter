@@ -16,5 +16,4 @@
     <string name="last_error">Last error:</string>
     <string name="last_update_sent">Last update sent:</string>
     <string name="error_getting_tlm_object">Error getting telemetry object from service.</string>
-    <string name="error_sending_update">Failed to send update http error: </string>
 </resources>
