@@ -20,8 +20,6 @@ public class MainApplication extends Application {
 
     mFileHandler = LoggerConfiguration.fileLogHandler(this);
     LoggerConfiguration.configuration().addHandlerToRootLogger(mFileHandler);
-
-    sLog.info(getString(R.string.app_name) + " started");
   }
 
   public File getCurrentLogFile() {
