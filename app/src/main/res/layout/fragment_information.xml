@@ -33,7 +33,7 @@
         android:layout_marginTop="8dp"
         android:text="@string/last_update_sent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_last_error" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_last_error_msg" />
 
     <TextView
         android:id="@+id/tv_last_update_sent_msg"
@@ -52,7 +52,7 @@
         android:layout_marginTop="8dp"
         android:text="Last data sent:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_last_update_sent" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_last_update_sent_msg" />
 
     <TextView
         android:id="@+id/tv_last_data_sent_msg"
