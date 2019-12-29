@@ -78,33 +78,12 @@ public class AbrpTransmitterService extends Service {
   private final IBinder mBinder = new AbrpTransmitterBinder();
   private List<Handler> mRegisteredHandlers = new ArrayList<>();
   private ScheduledExecutorService mScheduledExecutorService = null;
+  private AverageCollector mAverageCollector = null;
   private JSONObject mJTlmObj = new JSONObject();
   private GreenCarManager mGreenCarManager = null;
   private CarInfoManager mCarInfoManager = null;
   private HvacManager mHvacManager = null;
   private SharedPreferences mSharedPreferences = null;
-  private AsyncHttpClient mAsyncHttpClient = new AsyncHttpClient(true, 80, 443);
-  private AsyncHttpResponseHandler mAsyncHttpResponseHandler = new AsyncHttpResponseHandler() {
-    @Override
-    public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-      notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
-    }
-
-    @Override
-    public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-      if (error instanceof IOException && error.getMessage().startsWith("UnknownHostException")) {
-        sLog.info(error.getMessage());
-      } else {
-        sLog.error("error sending update", error);
-      }
-      notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, error.getLocalizedMessage());
-    }
-
-    @Override
-    public boolean getUseSynchronousMode() {
-      return false;
-    }
-  };
   private boolean mWifiConnected = false;
   private Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
@@ -126,6 +105,7 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public void onCreate() {
+    sLog.info(AbrpTransmitterService.class.getSimpleName() + " starting");
     Notification notification = new NotificationCompat.Builder(this, null)
         .setContentTitle(getString(R.string.app_name))
         .setSmallIcon(R.mipmap.ic_launcher)
@@ -137,6 +117,7 @@ public class AbrpTransmitterService extends Service {
     mGreenCarManager = GreenCarManager.getInstance(getApplicationContext());
     mCarInfoManager = CarInfoManager.getInstance();
     mHvacManager = HvacManager.getInstance();
+    mAverageCollector = new AverageCollector(mGreenCarManager);
     try {
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CAR_MODEL, ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28);
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
@@ -145,11 +126,10 @@ public class AbrpTransmitterService extends Service {
     } catch (JSONException e) {
       sLog.error("error building json object", e);
     }
-    mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
     getApplicationContext().registerReceiver(mConnectivityChangeReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
     mScheduledExecutorService = Executors.newScheduledThreadPool(2);
     mScheduledExecutorService.scheduleWithFixedDelay(new AbrpUpdater(), INTERVAL_SEND_UPDATE, INTERVAL_SEND_UPDATE, TimeUnit.MILLISECONDS);
-    mScheduledExecutorService.scheduleAtFixedRate(new AverageCollector(mGreenCarManager), INTERVAL_AVERAGE_COLLECTOR, INTERVAL_AVERAGE_COLLECTOR, TimeUnit.MILLISECONDS);
+    mScheduledExecutorService.scheduleAtFixedRate(mAverageCollector, INTERVAL_AVERAGE_COLLECTOR, INTERVAL_AVERAGE_COLLECTOR, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -174,6 +154,7 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public void onDestroy() {
+    sLog.info(AbrpTransmitterService.class.getSimpleName() + " shutting down");
     mScheduledExecutorService.shutdownNow();
     getApplicationContext().unregisterReceiver(mConnectivityChangeReceiver);
     stopForeground(true);
@@ -201,15 +182,15 @@ public class AbrpTransmitterService extends Service {
   }
 
   private static class AverageCollector implements Runnable {
-    private static LinkedHashMap<Long, Double> sConsumptionCollector = new LinkedHashMap<>();
-    private static GreenCarManager sGreenCarManager;
-    private static boolean sCollect = true;
+    private LinkedHashMap<Long, Double> sConsumptionCollector = new LinkedHashMap<>();
+    private GreenCarManager sGreenCarManager;
+    private volatile boolean sCollect = true;
 
     private AverageCollector(GreenCarManager greenCarManager) {
       sGreenCarManager = greenCarManager;
     }
 
-    public static double getAverage() {
+    public double getAverage() {
       if (sConsumptionCollector.size() == 0) {
         return 0.0;
       }
@@ -258,9 +239,34 @@ public class AbrpTransmitterService extends Service {
   }
 
   private class AbrpUpdater implements Runnable {
+    private AsyncHttpClient mAsyncHttpClient = new AsyncHttpClient(true, 80, 443);
+    private AsyncHttpResponseHandler mAsyncHttpResponseHandler = new AsyncHttpResponseHandler() {
+      @Override
+      public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+        notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
+      }
+
+      @Override
+      public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+        if (error instanceof IOException && error.getMessage().startsWith("UnknownHostException")) {
+          sLog.info(error.getMessage());
+        } else {
+          sLog.error("error sending update", error);
+        }
+        notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, error.getLocalizedMessage());
+      }
+
+      @Override
+      public boolean getUseSynchronousMode() {
+        return false;
+      }
+    };
+
     @Override
     public void run() {
       try {
+        mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
+
         if (!mWifiConnected) {
           notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, getString(R.string.no_wifi_ip));
           return;
@@ -283,7 +289,7 @@ public class AbrpTransmitterService extends Service {
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, AverageCollector.getAverage());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
 
         StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
