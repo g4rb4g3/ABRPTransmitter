@@ -95,7 +95,7 @@ public class InformationFragment extends Fragment {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    getActivity().unbindService(mServiceConnection);
+
   }
 
   @Override
@@ -132,6 +132,7 @@ public class InformationFragment extends Fragment {
     super.onPause();
     if (mBound) {
       mService.unregisterHandler(mHandler);
+      getActivity().unbindService(mServiceConnection);
     }
   }
 }
