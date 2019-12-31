@@ -56,7 +56,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_SOC;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_SPEED;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_TIME;
-import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_TELEMETRY_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_API_KEY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TELEMETRY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TOKEN;
@@ -292,7 +292,7 @@ public class AbrpTransmitterService extends Service {
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
 
-        StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_URL)
+        StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_TELEMETRY_URL)
             .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
             .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
             .append("&").append(ABETTERROUTEPLANNER_URL_TELEMETRY).append("=");

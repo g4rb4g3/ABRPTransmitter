@@ -2,7 +2,8 @@ package g4rb4g3.at.abrptransmitter;
 
 public class Constants {
 
-  public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
+  public static final String ABETTERROUTEPLANNER_PLAN_URL = "https://api.iternio.com/1/tlm/get_latest_plan?";
+  public static final String ABETTERROUTEPLANNER_TELEMETRY_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
   public static final String ABETTERROUTEPLANNER_URL_TELEMETRY = "tlm";
@@ -22,6 +23,7 @@ public class Constants {
   public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL = "car_model";
   public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28 = "hyundai:ioniq:17:28:other";
 
+  public static final String ACTION_GPS_CHANGED = "com.hkmc.telematics.gis.action.NAVI_GPS_CHANGED";
   public static final String EXTRA_LAT = "com.hkmc.telematics.gis.extra.LAT";
   public static final String EXTRA_LON = "com.hkmc.telematics.gis.extra.LON";
   public static final String EXTRA_ALT = "com.hkmc.telematics.gis.extra.ALT";
@@ -41,4 +43,5 @@ public class Constants {
   public static final int MESSAGE_LAST_ERROR_ABRPSERVICE = 3;
 
   public static final int NOTIFICATION_ID_ABRPTRANSMITTERSERVICE = 1;
+  public static final int NOTIFICATION_ID_ABRPCONSUMPTIONSERVICE = 2;
 }

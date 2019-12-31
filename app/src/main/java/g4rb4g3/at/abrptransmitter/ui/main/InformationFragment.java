@@ -40,7 +40,7 @@ public class InformationFragment extends Fragment {
           getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-              mTvLastErrorMsg.setText(Utils.getTimestamp() + ": " + (String) msg.obj);
+              mTvLastErrorMsg.setText(Utils.getTimestamp() + ": " + msg.obj);
             }
           });
           break;

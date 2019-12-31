@@ -52,6 +52,9 @@
         <service
             android:name=".service.CompanionExchangerService"
             android:exported="false" />
+        <service
+            android:name=".service.AbrpConsumptionService"
+            android:exported="false" />
     </application>
 
 </manifest>

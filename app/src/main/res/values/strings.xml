@@ -7,6 +7,7 @@
     <string name="companion_ip">Companion IP:</string>
     <string name="error_getting_ip">Error getting IP addresses.</string>
     <string name="error_reading_log">Error reading log file.</string>
+    <string name="tab_consumption">Consumption</string>
     <string name="tab_settings">Settings</string>
     <string name="tab_logs">Logs</string>
     <string name="tab_information">Info</string>
@@ -16,4 +17,5 @@
     <string name="last_error">Last error:</string>
     <string name="last_update_sent">Last update sent:</string>
     <string name="error_getting_tlm_object">Error getting telemetry object from service.</string>
+    <string name="load_plan">Load plan</string>
 </resources>
