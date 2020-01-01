@@ -147,10 +147,10 @@ public class AbrpConsumptionService extends Service implements IRoutePlan {
     double closest = Double.MAX_VALUE;
     Location closestLocation = null;
     for (Location l : mRouteLocations) {
-      Location pl = l.calcDistance(currentLocation);
-      if (pl.getDistance() < closest) {
-        closest = pl.getDistance();
-        closestLocation = pl;
+      float distance = l.distanceTo(currentLocation);
+      if (distance < closest) {
+        closest = distance;
+        closestLocation = l;
       }
     }
     sLog.info("closest distance: " + closest + " obj: [" + closestLocation.toString() + "]");
