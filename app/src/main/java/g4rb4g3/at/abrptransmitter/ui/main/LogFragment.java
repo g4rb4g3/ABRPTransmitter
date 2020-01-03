@@ -10,17 +10,15 @@ import android.widget.TextView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.MainApplication;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.asynctasks.LogFileLoader;
 
-public class LogFragment extends Fragment {
+public class LogFragment extends Fragment implements LogFileLoader.ILogFileLoader {
   private static final Logger sLog = LoggerFactory.getLogger(LogFragment.class.getSimpleName());
   private FileObserver mFileObserver = null;
   private TextView mTvLog;
@@ -42,7 +40,6 @@ public class LogFragment extends Fragment {
     mTvLog = view.findViewById(R.id.tv_log);
 
     File logFile = ((MainApplication) getActivity().getApplication()).getCurrentLogFile();
-    showLog(logFile);
 
     final String parent = logFile.getParent();
     mFileObserver = new FileObserver(parent, FileObserver.MODIFY) {
@@ -51,18 +48,18 @@ public class LogFragment extends Fragment {
         if (path == null || !path.endsWith(".log")) {
           return;
         }
-        File file = new File(parent + "/" + path);
-        showLog(file);
+        new LogFileLoader(LogFragment.this).execute(parent + "/" + path);
       }
     };
     return view;
   }
-  
+
   @Override
   public void onResume() {
     super.onResume();
-
-    mFileObserver.startWatching();
+    mTvLog.setText(getString(R.string.please_wait_logs));
+    File logFile = ((MainApplication) getActivity().getApplication()).getCurrentLogFile();
+    new LogFileLoader(this).execute(logFile.getAbsolutePath());
   }
 
   @Override
@@ -72,22 +69,16 @@ public class LogFragment extends Fragment {
     mFileObserver.stopWatching();
   }
 
-  private void showLog(File file) {
-    try {
-      final StringBuilder sb = new StringBuilder();
-      BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        sb.insert(0, line + '\n');
-      }
+  @Override
+  public void updateText(final String s) {
+    if (s != null) {
       getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          mTvLog.setText(sb.toString());
+          mTvLog.setText(s);
         }
       });
-    } catch (IOException e) {
-      sLog.error("", e);
     }
+    mFileObserver.startWatching();
   }
 }

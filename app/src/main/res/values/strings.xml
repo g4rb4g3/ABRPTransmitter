@@ -16,4 +16,5 @@
     <string name="last_error">Last error:</string>
     <string name="last_update_sent">Last update sent:</string>
     <string name="error_getting_tlm_object">Error getting telemetry object from service.</string>
+    <string name="please_wait_logs">Please wait while loading logs...</string>
 </resources>
