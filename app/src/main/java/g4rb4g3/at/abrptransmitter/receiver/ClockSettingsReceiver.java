@@ -10,7 +10,7 @@ public class ClockSettingsReceiver extends BroadcastReceiver {
 
   @Override
   public void onReceive(Context context, Intent intent) {
-    if(System.currentTimeMillis() - sLastCall > 2000) {
+    if (System.currentTimeMillis() - sLastCall > 2000) {
       sCalls = 0;
     }
     sLastCall = System.currentTimeMillis();

@@ -5,4 +5,24 @@
     <string name="transmit_data">Transmit data</string>
     <string name="saved">Settings saved successfully!</string>
     <string name="companion_ip">Companion IP:</string>
+    <string name="error_getting_ip">Error getting IP addresses.</string>
+    <string name="error_reading_log">Error reading log file.</string>
+    <string name="tab_settings">Settings</string>
+    <string name="tab_logs">Logs</string>
+    <string name="tab_information">Info</string>
+    <string name="autostart_data_exchange_companion_service">Autostart data exchange companion service</string>
+    <string name="no_wifi_ip">WiFi not connected.</string>
+    <string name="token_missing">Transmitting data enabled but ABRP token missing.</string>
+    <string name="last_error">Last error:</string>
+    <string name="last_update_sent">Last update sent:</string>
+    <string name="error_getting_tlm_object">Error getting telemetry object from service.</string>
+    <string name="release">Release:</string>
+    <string name="load_releases">Load releases</string>
+    <string name="download_amp_install"><![CDATA[Download & Install]]></string>
+    <string name="please_wait_logs">Please wait while loading logs...</string>
+    <string name="please_wait_loading_releaes">Please wait, loading releases from GitHub...</string>
+    <string name="choose_release">Choose a release</string>
+    <string name="please_wait_downloading">Please wait, downloading</string>
+    <string name="choose_release_first">Choose a release first</string>
+    <string name="installing">Starting installing, please restart app in about 30 seconds.</string>
 </resources>

@@ -2,39 +2,57 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="g4rb4g3.at.abrptransmitter">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
+        android:name=".MainApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:name=".MainApplication">
-        <activity android:name=".MainActivity">
+        android:theme="@style/AppTheme">
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name=".receiver.NaviGpsChangedReceiver" android:exported="true">
+
+        <receiver
+            android:name=".receiver.NaviGpsChangedReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.hkmc.telematics.gis.action.NAVI_GPS_CHANGED"/>
+                <action android:name="com.hkmc.telematics.gis.action.NAVI_GPS_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.ClockSettingsReceiver" android:exported="true">
+        <receiver
+            android:name=".receiver.ClockSettingsReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.lge.ivi.action.CLOCKSETTING"/>
+                <action android:name="com.lge.ivi.action.CLOCKSETTING" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".receiver.ButtonReceiver" android:exported="true">
+        <receiver
+            android:name=".receiver.ButtonReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="com.lge.ivi.action.KEY_EV"/>
+                <action android:name="com.lge.ivi.action.KEY_EV" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".service.AbrpTransmitterService"
+            android:exported="false" />
+        <service
+            android:name=".service.CompanionExchangerService"
+            android:exported="false" />
     </application>
 
 </manifest>
