@@ -1,5 +1,8 @@
 package g4rb4g3.at.abrptransmitter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -14,22 +17,29 @@ import java.util.Date;
 import java.util.List;
 
 import cz.msebera.android.httpclient.conn.util.InetAddressUtils;
+import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 
 public class Utils {
-  public static List<String> getIPAddresses() throws SocketException {
+  private static final Logger sLog = LoggerFactory.getLogger(Utils.class.getSimpleName());
+
+  public static List<String> getIPAddresses() {
     List<String> ips = new ArrayList<>();
-    List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-    for (NetworkInterface intf : interfaces) {
-      List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-      for (InetAddress addr : addrs) {
-        if (!addr.isLoopbackAddress()) {
-          if (InetAddressUtils.isIPv4Address(addr.getHostAddress())) {
-            ips.add(addr.getHostAddress());
-          } else {
-            ips.add(addr.getHostAddress().substring(0, addr.getHostAddress().indexOf("%")));
+    try {
+      List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+      for (NetworkInterface intf : interfaces) {
+        List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+        for (InetAddress addr : addrs) {
+          if (!addr.isLoopbackAddress()) {
+            if (InetAddressUtils.isIPv4Address(addr.getHostAddress())) {
+              ips.add(addr.getHostAddress());
+            } else {
+              ips.add(addr.getHostAddress().substring(0, addr.getHostAddress().indexOf("%")));
+            }
           }
         }
       }
+    } catch (SocketException e) {
+      sLog.error("error getting ip addresses", e);
     }
     return Collections.unmodifiableList(ips);
   }

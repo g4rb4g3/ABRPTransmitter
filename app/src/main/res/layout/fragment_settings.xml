@@ -26,15 +26,14 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/save"
+        android:id="@+id/bt_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
         android:text="@string/save"
-        app:layout_constraintBottom_toTopOf="@+id/tv_companion_ip"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.499"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_autostart_companion" />
 
     <CheckBox
         android:id="@+id/cb_transmit"
@@ -75,4 +74,36 @@
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_companion_label" />
+
+    <TextView
+        android:id="@+id/tv_release"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="@string/release"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bt_save" />
+
+    <Spinner
+        android:id="@+id/sp_releases"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_release"
+        app:layout_constraintEnd_toStartOf="@+id/btn_load_releases"
+        app:layout_constraintStart_toEndOf="@+id/tv_release"
+        app:layout_constraintTop_toTopOf="@+id/tv_release" />
+
+    <Button
+        android:id="@+id/btn_load_releases"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/load_releases"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_release"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_release" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

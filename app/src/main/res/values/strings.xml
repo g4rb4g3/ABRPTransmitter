@@ -16,5 +16,13 @@
     <string name="last_error">Last error:</string>
     <string name="last_update_sent">Last update sent:</string>
     <string name="error_getting_tlm_object">Error getting telemetry object from service.</string>
+    <string name="release">Release:</string>
+    <string name="load_releases">Load releases</string>
+    <string name="download_amp_install"><![CDATA[Download & Install]]></string>
     <string name="please_wait_logs">Please wait while loading logs...</string>
+    <string name="please_wait_loading_releaes">Please wait, loading releases from GitHub...</string>
+    <string name="choose_release">Choose a release</string>
+    <string name="please_wait_downloading">Please wait, downloading</string>
+    <string name="choose_release_first">Choose a release first</string>
+    <string name="installing">Starting installing, please restart app in about 30 seconds.</string>
 </resources>

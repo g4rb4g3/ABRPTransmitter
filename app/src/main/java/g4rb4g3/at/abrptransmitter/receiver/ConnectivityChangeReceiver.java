@@ -34,16 +34,11 @@ public class ConnectivityChangeReceiver extends BroadcastReceiver {
     ConnectivityManager conMan = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = conMan.getActiveNetworkInfo();
     if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
-      try {
-        List<String> ips = Utils.getIPAddresses();
-        Message msg = new Message();
-        msg.what = MESSAGE_CONNECTIVITY_CHANGED;
-        msg.obj = Collections.unmodifiableCollection(ips);
-        mHandler.sendMessage(msg);
-      } catch (SocketException e) {
-        String msg = context.getString(R.string.error_getting_ip);
-        sLog.error(msg, e);
-      }
+      List<String> ips = Utils.getIPAddresses();
+      Message msg = new Message();
+      msg.what = MESSAGE_CONNECTIVITY_CHANGED;
+      msg.obj = Collections.unmodifiableCollection(ips);
+      mHandler.sendMessage(msg);
     }
   }
 }
