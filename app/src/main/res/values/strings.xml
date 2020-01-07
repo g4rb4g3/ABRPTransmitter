@@ -10,6 +10,7 @@
     <string name="tab_settings">Settings</string>
     <string name="tab_logs">Logs</string>
     <string name="tab_information">Info</string>
+    <string name="tab_abrp_geckoview">ABRP</string>
     <string name="autostart_data_exchange_companion_service">Autostart data exchange companion service</string>
     <string name="no_wifi_ip">WiFi not connected.</string>
     <string name="token_missing">Transmitting data enabled but ABRP token missing.</string>

@@ -2,7 +2,8 @@ package g4rb4g3.at.abrptransmitter;
 
 public class Constants {
 
-  public static final String ABETTERROUTEPLANNER_URL = "https://api.iternio.com/1/tlm/send?";
+  public static final String ABETTERROUTEPLANNER_URL = "https://abetterrouteplanner.com/";
+  public static final String ABETTERROUTEPLANNER_API_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
   public static final String ABETTERROUTEPLANNER_URL_TELEMETRY = "tlm";

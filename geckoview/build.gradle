@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('geckoview-armeabi-v7a-67.0.20190613202504.aar'))
