@@ -1,5 +1,6 @@
 package g4rb4g3.at.abrptransmitter.ui.main;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -98,6 +99,10 @@ public class AbrpGeckViewFragment extends Fragment {
             intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
             intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
             getContext().sendBroadcast(intent);
+
+            intent = new Intent();
+            intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
+            startActivity(intent);
           }
           return null;
         }
