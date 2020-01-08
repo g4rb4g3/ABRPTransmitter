@@ -23,4 +23,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_gravity="top">
+
+        <Button
+            android:id="@+id/btn_toggle_fullscreen"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_fullscreen" />
+
+        <Button
+            android:id="@+id/btn_reload_abrp"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_refresh"
+            android:visibility="invisible" />
+    </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

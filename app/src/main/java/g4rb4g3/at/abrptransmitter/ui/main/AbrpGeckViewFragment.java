@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.mozilla.geckoview.AllowOrDeny;
 import org.mozilla.geckoview.GeckoResult;
@@ -37,6 +40,7 @@ public class AbrpGeckViewFragment extends Fragment {
   GeckoView mGeckoView;
   GeckoSession mGeckoSession;
   GeckoRuntime mGeckoRuntime;
+  Button mBtnRealodAbrp;
 
   public AbrpGeckViewFragment() {
     // Required empty public constructor
@@ -62,6 +66,9 @@ public class AbrpGeckViewFragment extends Fragment {
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_abrp_geck_view, container, false);
+
+    mBtnRealodAbrp = getActivity().findViewById(R.id.btn_reload_abrp);
+    mBtnRealodAbrp.setOnClickListener(v -> mGeckoSession.reload());
 
     if (mGeckoView == null) {
       mGeckoView = view.findViewById(R.id.gv_abrp);
@@ -109,6 +116,18 @@ public class AbrpGeckViewFragment extends Fragment {
       });
     }
     return view;
+  }
+
+  @Override
+  public void onResume() {
+    super.onResume();
+    mBtnRealodAbrp.setVisibility(View.VISIBLE);
+  }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+    mBtnRealodAbrp.setVisibility(View.INVISIBLE);
   }
 
   @Override
