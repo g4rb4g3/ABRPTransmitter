@@ -3,6 +3,7 @@ package g4rb4g3.at.abrptransmitter;
 public class Constants {
 
   public static final String ABETTERROUTEPLANNER_URL = "https://abetterrouteplanner.com/";
+  public static final String ABETTERROUTEPLANNER_URL_NOMAP = "?nomap=1";
   public static final String ABETTERROUTEPLANNER_API_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
@@ -34,6 +35,7 @@ public class Constants {
   public static final String PREFERENCES_TOKEN = "abrp_token";
   public static final String PREFERENCES_TRANSMIT_DATA = "transmit_data";
   public static final String PREFERENCES_AUTOSTART_COMPANION = "autostart_companion";
+  public static final String PREFERENCES_NOMAP = "nomap";
 
   public static final int COMPANION_EXCHANGE_PORT = 6942;
 

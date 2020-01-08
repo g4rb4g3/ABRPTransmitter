@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoSession;
@@ -15,6 +14,9 @@ import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +60,12 @@ public class AbrpGeckViewFragment extends Fragment {
 
       mGeckoSession.open(mGeckoRuntime);
       mGeckoView.setSession(mGeckoSession);
-      mGeckoSession.loadUri(ABETTERROUTEPLANNER_URL);
+      boolean nomap = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(PREFERENCES_NOMAP, false);
+      String url = ABETTERROUTEPLANNER_URL;
+      if (nomap) {
+        url += ABETTERROUTEPLANNER_URL_NOMAP;
+      }
+      mGeckoSession.loadUri(url);
     }
     return view;
   }

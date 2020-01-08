@@ -39,6 +39,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_AUTOSTART_COMPANION;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
@@ -50,6 +51,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   private Button mBtLoadReleases;
   private CheckBox mCbTransmitData;
   private CheckBox mCbAutostartCompanion;
+  private CheckBox mCbNoMap;
   private Spinner mSpReleases;
   private SharedPreferences mSharedPreferences;
   private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener;
@@ -106,6 +108,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mTvCompanionIp = view.findViewById(R.id.tv_companion_ip);
     mCbTransmitData = view.findViewById(R.id.cb_transmit);
     mCbAutostartCompanion = view.findViewById(R.id.cb_autostart_companion);
+    mCbNoMap = view.findViewById(R.id.cb_nomap);
     mSpReleases = view.findViewById(R.id.sp_releases);
 
     mBtSave.setOnClickListener(this);
@@ -114,6 +117,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
     mCbAutostartCompanion.setChecked(mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false));
+    mCbNoMap.setChecked(mSharedPreferences.getBoolean(PREFERENCES_NOMAP, false));
 
     mProgressDialog = new ProgressDialog(getContext());
     mProgressDialog.setCancelable(false);
@@ -157,6 +161,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, mCbTransmitData.isChecked());
         sped.putBoolean(PREFERENCES_AUTOSTART_COMPANION, mCbAutostartCompanion.isChecked());
+        sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();

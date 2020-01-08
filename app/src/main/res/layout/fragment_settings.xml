@@ -106,4 +106,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_release" />
 
+    <CheckBox
+        android:id="@+id/cb_nomap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="@string/load_abrp_with_no_map_mode"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/cb_transmit" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
