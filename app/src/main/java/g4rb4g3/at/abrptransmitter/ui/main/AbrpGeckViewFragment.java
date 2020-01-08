@@ -94,8 +94,8 @@ public class AbrpGeckViewFragment extends Fragment {
 
             Intent intent = new Intent();
             intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
-            intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", Double.parseDouble(lat));
-            intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", Double.parseDouble(lon));
+            intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", lat);
+            intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
             intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
             getContext().sendBroadcast(intent);
           }
