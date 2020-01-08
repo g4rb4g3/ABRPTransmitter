@@ -1,16 +1,25 @@
 package g4rb4g3.at.abrptransmitter.ui.main;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.mozilla.geckoview.AllowOrDeny;
+import org.mozilla.geckoview.GeckoResult;
 import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import g4rb4g3.at.abrptransmitter.R;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
@@ -60,12 +69,39 @@ public class AbrpGeckViewFragment extends Fragment {
 
       mGeckoSession.open(mGeckoRuntime);
       mGeckoView.setSession(mGeckoSession);
+
       boolean nomap = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(PREFERENCES_NOMAP, false);
       String url = ABETTERROUTEPLANNER_URL;
       if (nomap) {
         url += ABETTERROUTEPLANNER_URL_NOMAP;
       }
       mGeckoSession.loadUri(url);
+
+      mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
+        @Nullable
+        @Override
+        public GeckoResult<AllowOrDeny> onLoadRequest(@NonNull GeckoSession session, @NonNull LoadRequest request) {
+          if (request.uri.startsWith("geo:")) {
+            String[] parts = request.uri.replace("geo:", "").replaceFirst("\\?.*\\(", ",").replace(")", "").split(",");
+            String lat = parts[0];
+            String lon = parts[1];
+            String name;
+            try {
+              name = URLDecoder.decode(parts[2], "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+              name = "";
+            }
+
+            Intent intent = new Intent();
+            intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
+            intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", Double.parseDouble(lat));
+            intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", Double.parseDouble(lon));
+            intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
+            getContext().sendBroadcast(intent);
+          }
+          return null;
+        }
+      });
     }
     return view;
   }
