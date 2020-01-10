@@ -14,6 +14,8 @@ import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
+  boolean mFullscreen = false;
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -26,18 +28,28 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnToggleFullscreen = findViewById(R.id.btn_toggle_fullscreen);
     btnToggleFullscreen.setOnClickListener(v -> {
-      if (v.getTag() == null) {
+      if (!mFullscreen) {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        v.setTag("");
         btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen_exit), null, null, null);
       } else {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        v.setTag(null);
         btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen), null, null, null);
       }
+      mFullscreen = !mFullscreen;
     });
 
     Intent intent = new Intent(this, CompanionExchangerService.class);
     startService(intent);
+  }
+
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if(mFullscreen) {
+      int visibility = getWindow().getDecorView().getVisibility();
+      if((visibility & View.SYSTEM_UI_FLAG_VISIBLE) == 0) {
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
+      }
+    }
   }
 }
