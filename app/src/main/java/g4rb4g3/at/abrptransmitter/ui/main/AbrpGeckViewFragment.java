@@ -3,6 +3,7 @@ package g4rb4g3.at.abrptransmitter.ui.main;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +25,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_AUTH_CODE;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_REDIRECT_URI;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_USER_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -38,7 +45,7 @@ public class AbrpGeckViewFragment extends Fragment {
   GeckoView mGeckoView;
   GeckoSession mGeckoSession;
   GeckoRuntime mGeckoRuntime;
-  Button mBtnRealodAbrp;
+  Button mBtnRealodAbrp, mBtnGetAbrpToken;
   ProgressBar mPbGeckoView;
 
   public AbrpGeckViewFragment() {
@@ -69,6 +76,8 @@ public class AbrpGeckViewFragment extends Fragment {
 
     mBtnRealodAbrp = getActivity().findViewById(R.id.btn_reload_abrp);
     mBtnRealodAbrp.setOnClickListener(v -> mGeckoSession.reload());
+    mBtnGetAbrpToken = getActivity().findViewById(R.id.btn_get_abrp_token);
+    mBtnGetAbrpToken.setOnClickListener(v -> mGeckoSession.loadUri(ABETTERROUTEPLANNER_AUTH_URL));
     mPbGeckoView = view.findViewById(R.id.pb_geckoview);
     mGeckoView = view.findViewById(R.id.gv_abrp);
 
@@ -99,6 +108,21 @@ public class AbrpGeckViewFragment extends Fragment {
             intent = new Intent();
             intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
             startActivity(intent);
+          } else if(request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
+            if(request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
+              String authCode = request.uri.substring(request.uri.indexOf(ABETTERROUTEPLANNER_AUTH_AUTH_CODE) + ABETTERROUTEPLANNER_AUTH_AUTH_CODE.length() + 1);
+              if(authCode.contains("&")) {
+                authCode = authCode.substring(0, authCode.indexOf("&"));
+              }
+              mGeckoSession.loadUri(ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN + authCode);
+            } else if(request.uri.contains(ABETTERROUTEPLANNER_AUTH_USER_TOKEN)) {
+              String userToken = ""; //TODO: get token from json
+              SharedPreferences.Editor sped = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+              sped.putString(PREFERENCES_TOKEN, userToken);
+              sped.commit();
+              mGeckoSession.loadUri(getAbrpUrl());
+            }
+            return GeckoResult.DENY;
           }
           return null;
         }
@@ -129,6 +153,10 @@ public class AbrpGeckViewFragment extends Fragment {
   public void onResume() {
     super.onResume();
     mBtnRealodAbrp.setVisibility(View.VISIBLE);
+    String token = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getString(PREFERENCES_TOKEN, null);
+    if(token == null || token.length() == 0) {
+      mBtnGetAbrpToken.setVisibility(View.VISIBLE);
+    }
   }
 
   @Override
@@ -136,6 +164,7 @@ public class AbrpGeckViewFragment extends Fragment {
     super.onPause();
     mBtnRealodAbrp.setVisibility(View.INVISIBLE);
     mPbGeckoView.setVisibility(View.GONE);
+    mBtnGetAbrpToken.setVisibility(View.GONE);
   }
 
   @Override

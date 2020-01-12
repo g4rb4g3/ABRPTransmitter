@@ -42,5 +42,11 @@
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_refresh"
             android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/btn_get_abrp_token"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_get_token" />
     </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

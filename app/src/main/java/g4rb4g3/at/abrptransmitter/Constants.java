@@ -1,9 +1,17 @@
 package g4rb4g3.at.abrptransmitter;
 
+import java.net.URLEncoder;
+
 public class Constants {
 
   public static final String ABETTERROUTEPLANNER_URL = "https://abetterrouteplanner.com/";
   public static final String ABETTERROUTEPLANNER_URL_NOMAP = "?nomap=1";
+
+  public static final String ABETTERROUTEPLANNER_AUTH_URL = "https://abetterrouteplanner.com/oauth/auth?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&response_type=code&redirect_uri=" + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&scope=send_telemetry";
+  public static final String ABETTERROUTEPLANNER_AUTH_AUTH_CODE = "code";
+  public static final String ABETTERROUTEPLANNER_AUTH_USER_TOKEN = "user_token";
+  public static final String ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN = "https://abetterrouteplanner.com/oauth/token?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&client_secret=" + ABETTERROUTEPLANNER_API_KEY + "&redirect_uri="  + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&code=";
+
   public static final String ABETTERROUTEPLANNER_API_URL = "https://api.iternio.com/1/tlm/send?";
   public static final String ABETTERROUTEPLANNER_URL_TOKEN = "token";
   public static final String ABETTERROUTEPLANNER_URL_API_KEY = "api_key";
