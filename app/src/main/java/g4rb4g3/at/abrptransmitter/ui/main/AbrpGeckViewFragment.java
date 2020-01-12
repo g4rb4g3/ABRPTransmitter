@@ -8,8 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import android.widget.ProgressBar;
 
 import org.mozilla.geckoview.AllowOrDeny;
 import org.mozilla.geckoview.GeckoResult;
@@ -17,13 +16,12 @@ import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
@@ -41,6 +39,7 @@ public class AbrpGeckViewFragment extends Fragment {
   GeckoSession mGeckoSession;
   GeckoRuntime mGeckoRuntime;
   Button mBtnRealodAbrp;
+  ProgressBar mPbGeckoView;
 
   public AbrpGeckViewFragment() {
     // Required empty public constructor
@@ -60,6 +59,7 @@ public class AbrpGeckViewFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    mGeckoRuntime = GeckoRuntime.create(getContext());
   }
 
   @Override
@@ -69,22 +69,11 @@ public class AbrpGeckViewFragment extends Fragment {
 
     mBtnRealodAbrp = getActivity().findViewById(R.id.btn_reload_abrp);
     mBtnRealodAbrp.setOnClickListener(v -> mGeckoSession.reload());
+    mPbGeckoView = view.findViewById(R.id.pb_geckoview);
+    mGeckoView = view.findViewById(R.id.gv_abrp);
 
-    if (mGeckoView == null) {
-      mGeckoView = view.findViewById(R.id.gv_abrp);
+    if (mGeckoSession == null || !mGeckoSession.isOpen()) {
       mGeckoSession = new GeckoSession();
-      mGeckoRuntime = GeckoRuntime.create(getContext());
-
-      mGeckoSession.open(mGeckoRuntime);
-      mGeckoView.setSession(mGeckoSession);
-
-      boolean nomap = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(PREFERENCES_NOMAP, false);
-      String url = ABETTERROUTEPLANNER_URL;
-      if (nomap) {
-        url += ABETTERROUTEPLANNER_URL_NOMAP;
-      }
-      mGeckoSession.loadUri(url);
-
       mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
         @Nullable
         @Override
@@ -114,7 +103,25 @@ public class AbrpGeckViewFragment extends Fragment {
           return null;
         }
       });
+
+
+      mGeckoSession.setProgressDelegate(new GeckoSession.ProgressDelegate() {
+        @Override
+        public void onProgressChange(@NonNull GeckoSession geckoSession, int progress) {
+          mPbGeckoView.setProgress(progress);
+          if (progress > 0 && progress < 100) {
+            mPbGeckoView.setVisibility(View.VISIBLE);
+          } else {
+            mPbGeckoView.setVisibility(View.GONE);
+          }
+        }
+      });
+
+      mGeckoSession.open(mGeckoRuntime);
+      mGeckoView.setSession(mGeckoSession);
+      mGeckoSession.loadUri(getAbrpUrl());
     }
+
     return view;
   }
 
@@ -128,6 +135,7 @@ public class AbrpGeckViewFragment extends Fragment {
   public void onPause() {
     super.onPause();
     mBtnRealodAbrp.setVisibility(View.INVISIBLE);
+    mPbGeckoView.setVisibility(View.GONE);
   }
 
   @Override
@@ -138,5 +146,20 @@ public class AbrpGeckViewFragment extends Fragment {
   @Override
   public void onDetach() {
     super.onDetach();
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    mGeckoSession.close();
+  }
+
+  private String getAbrpUrl() {
+    boolean nomap = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(PREFERENCES_NOMAP, false);
+    String url = ABETTERROUTEPLANNER_URL;
+    if (nomap) {
+      url += ABETTERROUTEPLANNER_URL_NOMAP;
+    }
+    return url;
   }
 }
