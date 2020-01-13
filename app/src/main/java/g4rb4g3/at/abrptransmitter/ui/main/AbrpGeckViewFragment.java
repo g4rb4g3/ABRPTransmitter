@@ -11,25 +11,39 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.mozilla.geckoview.AllowOrDeny;
 import org.mozilla.geckoview.GeckoResult;
 import org.mozilla.geckoview.GeckoRuntime;
 import org.mozilla.geckoview.GeckoSession;
 import org.mozilla.geckoview.GeckoView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.TLSSocketFactory;
 
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_ACCESS_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_AUTH_CODE;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_REDIRECT_URI;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
-import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_USER_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
@@ -42,6 +56,8 @@ import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
  * create an instance of this fragment.
  */
 public class AbrpGeckViewFragment extends Fragment {
+  private static final Logger sLog = LoggerFactory.getLogger(AbrpGeckViewFragment.class.getSimpleName());
+
   GeckoView mGeckoView;
   GeckoSession mGeckoSession;
   GeckoRuntime mGeckoRuntime;
@@ -108,19 +124,13 @@ public class AbrpGeckViewFragment extends Fragment {
             intent = new Intent();
             intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
             startActivity(intent);
-          } else if(request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
-            if(request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
+          } else if (request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
+            if (request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
               String authCode = request.uri.substring(request.uri.indexOf(ABETTERROUTEPLANNER_AUTH_AUTH_CODE) + ABETTERROUTEPLANNER_AUTH_AUTH_CODE.length() + 1);
-              if(authCode.contains("&")) {
+              if (authCode.contains("&")) {
                 authCode = authCode.substring(0, authCode.indexOf("&"));
               }
-              mGeckoSession.loadUri(ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN + authCode);
-            } else if(request.uri.contains(ABETTERROUTEPLANNER_AUTH_USER_TOKEN)) {
-              String userToken = ""; //TODO: get token from json
-              SharedPreferences.Editor sped = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
-              sped.putString(PREFERENCES_TOKEN, userToken);
-              sped.commit();
-              mGeckoSession.loadUri(getAbrpUrl());
+              loadToken(authCode);
             }
             return GeckoResult.DENY;
           }
@@ -154,7 +164,7 @@ public class AbrpGeckViewFragment extends Fragment {
     super.onResume();
     mBtnRealodAbrp.setVisibility(View.VISIBLE);
     String token = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getString(PREFERENCES_TOKEN, null);
-    if(token == null || token.length() == 0) {
+    if (token == null || token.length() == 0) {
       mBtnGetAbrpToken.setVisibility(View.VISIBLE);
     }
   }
@@ -190,5 +200,36 @@ public class AbrpGeckViewFragment extends Fragment {
       url += ABETTERROUTEPLANNER_URL_NOMAP;
     }
     return url;
+  }
+
+  private void loadToken(String authCode) {
+    new Thread(() -> {
+      try {
+        URL url = new URL(ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN + authCode);
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        connection.setSSLSocketFactory(new TLSSocketFactory());
+        connection.connect();
+        InputStream stream = connection.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuffer buffer = new StringBuffer();
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+          buffer.append(line);
+        }
+        String json = buffer.toString();
+        JSONObject jsonObject = new JSONObject(json);
+
+        SharedPreferences.Editor sped = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).edit();
+        sped.putString(PREFERENCES_TOKEN, jsonObject.getString(ABETTERROUTEPLANNER_AUTH_ACCESS_TOKEN));
+        sped.commit();
+
+        getActivity().runOnUiThread(() -> mBtnGetAbrpToken.setVisibility(View.GONE));
+      } catch (IOException | JSONException | NoSuchAlgorithmException | KeyManagementException e) {
+        sLog.error("error getting token", e);
+      } finally {
+        mGeckoSession.loadUri(getAbrpUrl());
+      }
+    }).start();
   }
 }

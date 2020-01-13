@@ -114,7 +114,6 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mBtSave.setOnClickListener(this);
     mBtLoadReleases.setOnClickListener(this);
 
-    mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
     mCbAutostartCompanion.setChecked(mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false));
     mCbNoMap.setChecked(mSharedPreferences.getBoolean(PREFERENCES_NOMAP, false));
@@ -143,6 +142,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   public void onResume() {
     super.onResume();
     getContext().registerReceiver(mConnectivityChangedReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
+    mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
     mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 
