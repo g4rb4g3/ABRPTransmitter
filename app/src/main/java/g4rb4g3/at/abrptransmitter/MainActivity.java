@@ -3,6 +3,7 @@ package g4rb4g3.at.abrptransmitter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextClock;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -24,14 +25,18 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabs = findViewById(R.id.tabs);
     tabs.setupWithViewPager(viewPager);
 
+    TextClock textClock = findViewById(R.id.textclock);
+
     Button btnToggleFullscreen = findViewById(R.id.btn_toggle_fullscreen);
     btnToggleFullscreen.setOnClickListener(v -> {
       if (!mFullscreen) {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen_exit), null, null, null);
+        textClock.setVisibility(View.VISIBLE);
       } else {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen), null, null, null);
+        textClock.setVisibility(View.GONE);
       }
       mFullscreen = !mFullscreen;
     });
