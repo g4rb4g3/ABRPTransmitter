@@ -1,6 +1,5 @@
 package g4rb4g3.at.abrptransmitter;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -9,7 +8,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
-import g4rb4g3.at.abrptransmitter.service.CompanionExchangerService;
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,17 +35,14 @@ public class MainActivity extends AppCompatActivity {
       }
       mFullscreen = !mFullscreen;
     });
-
-    Intent intent = new Intent(this, CompanionExchangerService.class);
-    startService(intent);
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    if(mFullscreen) {
+    if (mFullscreen) {
       int visibility = getWindow().getDecorView().getVisibility();
-      if((visibility & View.SYSTEM_UI_FLAG_VISIBLE) == 0) {
+      if ((visibility & View.SYSTEM_UI_FLAG_VISIBLE) == 0) {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
       }
     }
