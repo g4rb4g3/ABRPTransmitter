@@ -7,14 +7,33 @@
     tools:context=".ui.main.SettingsFragment">
 
     <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/app_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_app_version"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="@string/versionName"
+        app:layout_constraintStart_toEndOf="@+id/tv_app_name"
+        app:layout_constraintTop_toTopOf="@+id/tv_app_name" />
+
+    <TextView
         android:id="@+id/abrp_mail"
         android:layout_width="0dp"
         android:layout_height="23dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/abrp_mail"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tv_app_version" />
 
     <EditText
         android:id="@+id/tv_abrp_token"
@@ -23,7 +42,7 @@
         android:layout_marginStart="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/abrp_mail"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/abrp_mail" />
 
     <Button
         android:id="@+id/bt_save"
