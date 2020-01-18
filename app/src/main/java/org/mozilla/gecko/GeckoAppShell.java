@@ -73,9 +73,10 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.annotation.Nullable;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.util.SimpleArrayMap;
+import androidx.annotation.Nullable;
+import androidx.collection.SimpleArrayMap;
+import androidx.core.content.res.ResourcesCompat;
+
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;

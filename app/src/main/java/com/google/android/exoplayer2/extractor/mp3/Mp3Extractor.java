@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mp3;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.ParserException;

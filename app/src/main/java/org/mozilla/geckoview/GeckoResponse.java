@@ -6,8 +6,8 @@
 
 package org.mozilla.geckoview;
 
-import android.support.annotation.AnyThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.AnyThread;
+import androidx.annotation.Nullable;
 
 /**
  * This is used to receive async responses from delegate methods.

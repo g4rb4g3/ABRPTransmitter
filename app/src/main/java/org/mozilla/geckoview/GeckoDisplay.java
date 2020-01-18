@@ -7,8 +7,8 @@
 package org.mozilla.geckoview;
 
 import android.graphics.Bitmap;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 import android.view.Surface;
 
 import org.mozilla.gecko.util.ThreadUtils;

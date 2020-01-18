@@ -9,7 +9,7 @@ import org.mozilla.gecko.util.ThreadUtils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Helper class to run code blocks depending on whether a user has granted or denied certain runtime permissions.

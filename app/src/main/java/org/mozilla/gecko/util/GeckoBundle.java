@@ -16,12 +16,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.v4.util.SimpleArrayMap;
 
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+
+import androidx.collection.SimpleArrayMap;
 
 /**
  * A lighter-weight version of Bundle that adds support for type coercion (e.g.

@@ -9,8 +9,8 @@ package org.mozilla.geckoview;
 import org.mozilla.gecko.annotation.WrapForJNI;
 
 import android.annotation.SuppressLint;
-import android.support.annotation.AnyThread;
-import android.support.annotation.IntDef;
+import androidx.annotation.AnyThread;
+import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -15,7 +15,7 @@
  */
 package com.google.android.exoplayer2.extractor.mkv;
 
-import android.support.annotation.IntDef;
+import androidx.annotation.IntDef;
 import android.util.SparseArray;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.Format;

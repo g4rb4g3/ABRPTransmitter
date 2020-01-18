@@ -8,7 +8,7 @@ package org.mozilla.gecko.permissions;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.mozilla.gecko.util.ThreadUtils;
 
