@@ -140,59 +140,61 @@ public class AbrpGeckViewFragment extends Fragment {
     mGeckoView = view.findViewById(R.id.gv_abrp);
 
     if (mGeckoSession == null || !mGeckoSession.isOpen()) {
-      mGeckoSession = new GeckoSession();
-      mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
-        @Nullable
-        @Override
-        public GeckoResult<AllowOrDeny> onLoadRequest(@NonNull GeckoSession session, @NonNull LoadRequest request) {
-          if (request.uri.startsWith("geo:")) {
-            String[] parts = request.uri.replace("geo:", "").replaceFirst("\\?.*\\(", ",").replace(")", "").split(",");
-            String lat = parts[0];
-            String lon = parts[1];
-            String name;
-            try {
-              name = URLDecoder.decode(parts[2], "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-              name = "";
-            }
-
-            Intent intent = new Intent();
-            intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
-            intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", lat);
-            intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
-            intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
-            getContext().sendBroadcast(intent);
-
-            intent = new Intent();
-            intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
-            startActivity(intent);
-          } else if (request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
-            if (request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
-              String authCode = request.uri.substring(request.uri.indexOf(ABETTERROUTEPLANNER_AUTH_AUTH_CODE) + ABETTERROUTEPLANNER_AUTH_AUTH_CODE.length() + 1);
-              if (authCode.contains("&")) {
-                authCode = authCode.substring(0, authCode.indexOf("&"));
+      if(mGeckoSession == null) {
+        mGeckoSession = new GeckoSession();
+        mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
+          @Nullable
+          @Override
+          public GeckoResult<AllowOrDeny> onLoadRequest(@NonNull GeckoSession session, @NonNull LoadRequest request) {
+            if (request.uri.startsWith("geo:")) {
+              String[] parts = request.uri.replace("geo:", "").replaceFirst("\\?.*\\(", ",").replace(")", "").split(",");
+              String lat = parts[0];
+              String lon = parts[1];
+              String name;
+              try {
+                name = URLDecoder.decode(parts[2], "UTF-8");
+              } catch (UnsupportedEncodingException e) {
+                name = "";
               }
-              loadToken(authCode);
+
+              Intent intent = new Intent();
+              intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
+              intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", lat);
+              intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
+              intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
+              getContext().sendBroadcast(intent);
+
+              intent = new Intent();
+              intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
+              startActivity(intent);
+            } else if (request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
+              if (request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
+                String authCode = request.uri.substring(request.uri.indexOf(ABETTERROUTEPLANNER_AUTH_AUTH_CODE) + ABETTERROUTEPLANNER_AUTH_AUTH_CODE.length() + 1);
+                if (authCode.contains("&")) {
+                  authCode = authCode.substring(0, authCode.indexOf("&"));
+                }
+                loadToken(authCode);
+              }
+              return GeckoResult.DENY;
             }
-            return GeckoResult.DENY;
+            return null;
           }
-          return null;
-        }
-      });
+        });
 
 
-      mGeckoSession.setProgressDelegate(new GeckoSession.ProgressDelegate() {
-        @Override
-        public void onProgressChange(@NonNull GeckoSession geckoSession, int progress) {
-          mPbGeckoView.setProgress(progress);
-          if (progress > 0 && progress < 100) {
-            mPbGeckoView.setVisibility(View.VISIBLE);
-          } else {
-            mPbGeckoView.setVisibility(View.GONE);
+        mGeckoSession.setProgressDelegate(new GeckoSession.ProgressDelegate() {
+          @Override
+          public void onProgressChange(@NonNull GeckoSession geckoSession, int progress) {
+            mPbGeckoView.setProgress(progress);
+            if (progress > 0 && progress < 100) {
+              mPbGeckoView.setVisibility(View.VISIBLE);
+            } else {
+              mPbGeckoView.setVisibility(View.GONE);
+            }
           }
-        }
-      });
-
+        });
+      }
+      
       mGeckoSession.open(mGeckoRuntime);
       mGeckoView.setSession(mGeckoSession);
       mGeckoSession.loadUri(getAbrpUrl());
@@ -217,6 +219,14 @@ public class AbrpGeckViewFragment extends Fragment {
     mBtnRealodAbrp.setVisibility(View.INVISIBLE);
     mPbGeckoView.setVisibility(View.GONE);
     mBtnGetAbrpToken.setVisibility(View.GONE);
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    mGeckoView.releaseSession();
+    mGeckoSession.close();
+    mGeckoView = null;
   }
 
   public boolean onKeyEvent(int keycode) {
