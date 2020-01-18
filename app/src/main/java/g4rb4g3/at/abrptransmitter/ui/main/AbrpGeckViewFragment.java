@@ -42,6 +42,7 @@ import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.TLSSocketFactory;
 
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
+import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_PRESS;
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_UP;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_ACCESS_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_AUTH_CODE;
@@ -250,6 +251,9 @@ public class AbrpGeckViewFragment extends Fragment {
           break;
         case KEYCODE_TUNE_DOWN:
           message.put("zoomOut", true);
+          break;
+        case KEYCODE_TUNE_PRESS:
+          message.put("toggleNight", true);
           break;
         default:
           return;

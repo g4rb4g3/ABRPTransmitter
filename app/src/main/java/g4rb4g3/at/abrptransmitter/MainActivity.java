@@ -14,6 +14,7 @@ import g4rb4g3.at.abrptransmitter.ui.main.AbrpGeckViewFragment;
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
+import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_PRESS;
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_UP;
 import static g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter.TAB_TITLES;
 
@@ -66,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     switch (event.getKeyCode()) {
       case KEYCODE_TUNE_UP:
       case KEYCODE_TUNE_DOWN:
+      case KEYCODE_TUNE_PRESS:
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
           notifyFragment(event.getKeyCode());
         }

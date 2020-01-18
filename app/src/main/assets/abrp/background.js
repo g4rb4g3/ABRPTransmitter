@@ -11,6 +11,8 @@ port.onMessage.addListener(response => {
       code = 'document.getElementById("zoomin").click()';
     } else if(response.zoomOut) {
       code = 'document.getElementById("zoomout").click()';
+    } else if (response.toggleNight) {
+      code = 'document.getElementById("toolbar-nightbutton").click()';
     }
     if(code != '') {
       browser.tabs.executeScript({
