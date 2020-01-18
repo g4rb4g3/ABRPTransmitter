@@ -9,9 +9,6 @@
   "permissions": [
     "nativeMessaging",
     "geckoViewAddons",
-    "<all_urls>",
-    "tabs",
-    "activeTab",
     "*://abetterrouteplanner.com/*"
   ]
 }
