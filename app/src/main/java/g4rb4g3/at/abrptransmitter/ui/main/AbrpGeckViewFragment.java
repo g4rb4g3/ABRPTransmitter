@@ -219,22 +219,6 @@ public class AbrpGeckViewFragment extends Fragment {
     mBtnGetAbrpToken.setVisibility(View.GONE);
   }
 
-  @Override
-  public void onAttach(Context context) {
-    super.onAttach(context);
-  }
-
-  @Override
-  public void onDetach() {
-    super.onDetach();
-  }
-
-  @Override
-  public void onDestroyView() {
-    super.onDestroyView();
-    mGeckoSession.close();
-  }
-
   public boolean onKeyEvent(int keycode) {
     if (mPort == null) {
       return false;
