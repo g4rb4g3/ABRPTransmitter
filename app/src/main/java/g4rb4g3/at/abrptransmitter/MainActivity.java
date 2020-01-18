@@ -69,18 +69,18 @@ public class MainActivity extends AppCompatActivity {
       case KEYCODE_TUNE_DOWN:
       case KEYCODE_TUNE_PRESS:
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
-          notifyFragment(event.getKeyCode());
+          return notifyFragment(event.getKeyCode());
         }
-        return true;
       default:
         return super.dispatchKeyEvent(event);
     }
   }
 
-  private void notifyFragment(int keycode) {
+  private boolean notifyFragment(int keycode) {
     int position = mTabs.getSelectedTabPosition();
     if (TAB_TITLES[position] == R.string.tab_abrp_geckoview) {
-      ((AbrpGeckViewFragment) mSectionsPageAdapter.getFragment(position)).onKeyEvent(keycode);
+      return ((AbrpGeckViewFragment) mSectionsPageAdapter.getFragment(position)).onKeyEvent(keycode);
     }
+    return false;
   }
 }

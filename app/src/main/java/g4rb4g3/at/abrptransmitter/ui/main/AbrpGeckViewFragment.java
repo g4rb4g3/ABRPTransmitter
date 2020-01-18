@@ -239,9 +239,9 @@ public class AbrpGeckViewFragment extends Fragment {
     mGeckoSession.close();
   }
 
-  public void onKeyEvent(int keycode) {
+  public boolean onKeyEvent(int keycode) {
     if (mPort == null) {
-      return;
+      return false;
     }
     JSONObject message = new JSONObject();
     try {
@@ -256,12 +256,13 @@ public class AbrpGeckViewFragment extends Fragment {
           message.put("toggleNight", true);
           break;
         default:
-          return;
+          return false;
       }
     } catch (JSONException ex) {
       throw new RuntimeException(ex);
     }
     mPort.postMessage(message);
+    return true;
   }
 
   private String getAbrpUrl() {
