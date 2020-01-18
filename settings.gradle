@@ -1,1 +1,1 @@
-include ':app', ':geckoview'
+include ':app'

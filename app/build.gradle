@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+ext {
+    geckoview_channel = "geckoview"
+    geckoview_version = "72.0.20200107212822"
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -39,5 +44,5 @@ dependencies {
     implementation 'com.loopj.android:android-async-http:1.4.9'
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation('com.github.bright:slf4android:0.1.6') { transitive = true }
-    implementation project(path: ':geckoview')
+    implementation "org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}"
 }
