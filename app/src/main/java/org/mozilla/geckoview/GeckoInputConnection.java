@@ -49,7 +49,7 @@ import java.lang.reflect.Proxy;
     private static final String CUSTOM_HANDLER_TEST_CLASS =
         "org.mozilla.gecko.tests.components.GeckoViewComponent$TextInput";
 
-    private static final int INLINE_IME_MIN_DISPLAY_SIZE = 480;
+    private static final int INLINE_IME_MIN_DISPLAY_SIZE = 100;
 
     private static Handler sBackgroundHandler;
 

@@ -49,6 +49,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
+import com.lge.ivi.view.IviKeyEvent;
+
 /**
  * GeckoEditable implements only some functions of Editable
  * The field mText contains the actual underlying
@@ -2185,6 +2187,13 @@ import android.view.inputmethod.EditorInfo;
             case KeyEvent.KEYCODE_SEARCH:
                 // ignore HEADSETHOOK to allow hold-for-voice-search to work
             case KeyEvent.KEYCODE_HEADSETHOOK:
+            case IviKeyEvent.KEYCODE_SEEK_UP:
+            case IviKeyEvent.KEYCODE_SEEK_DOWN:
+            case IviKeyEvent.KEYCODE_TRACK_SEEK_UP:
+            case IviKeyEvent.KEYCODE_TRACK_SEEK_DOWN:
+            case IviKeyEvent.KEYCODE_TUNE_UP:
+            case IviKeyEvent.KEYCODE_TUNE_DOWN:
+            case IviKeyEvent.KEYCODE_TUNE_PRESS:
                 return false;
         }
         return true;
