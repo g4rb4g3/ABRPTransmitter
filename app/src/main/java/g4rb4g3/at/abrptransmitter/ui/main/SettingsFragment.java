@@ -30,6 +30,7 @@ import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APLLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -42,6 +43,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   private Button mBtLoadReleases;
   private CheckBox mCbTransmitData;
   private CheckBox mCbNoMap;
+  private CheckBox mCbApplyCss;
   private Spinner mSpReleases;
   private SharedPreferences mSharedPreferences;
   private LinkedHashMap<String, String> mReleases = new LinkedHashMap<>();
@@ -75,6 +77,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mTvToken = view.findViewById(R.id.tv_abrp_token);
     mCbTransmitData = view.findViewById(R.id.cb_transmit);
     mCbNoMap = view.findViewById(R.id.cb_nomap);
+    mCbApplyCss = view.findViewById(R.id.cb_apply_css);
     mSpReleases = view.findViewById(R.id.sp_releases);
 
     mBtSave.setOnClickListener(this);
@@ -82,6 +85,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
 
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
     mCbNoMap.setChecked(mSharedPreferences.getBoolean(PREFERENCES_NOMAP, false));
+    mCbApplyCss.setChecked(mSharedPreferences.getBoolean(PREFERENCES_APLLY_CSS, false));
     return view;
   }
 
@@ -104,6 +108,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, mCbTransmitData.isChecked());
         sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
+        sped .putBoolean(PREFERENCES_APLLY_CSS, mCbApplyCss.isChecked());
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();

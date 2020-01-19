@@ -51,6 +51,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APLLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -70,6 +71,8 @@ public class AbrpGeckViewFragment extends Fragment {
   ProgressBar mPbGeckoView;
   private WebExtension.Port mPort;
 
+  private SharedPreferences mSharedPreferences;
+
   public AbrpGeckViewFragment() {
     // Required empty public constructor
   }
@@ -88,6 +91,8 @@ public class AbrpGeckViewFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
     GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
         .configFilePath(""); //required to get rid of  java.lang.VerifyError: org/yaml/snakeyaml/introspector/PropertyUtils https://bugzilla.mozilla.org/show_bug.cgi?id=1567115
@@ -190,6 +195,10 @@ public class AbrpGeckViewFragment extends Fragment {
             } else {
               mPbGeckoView.setVisibility(View.GONE);
             }
+
+            if(progress == 100) {
+              setCss();
+            }
           }
         });
       }
@@ -206,10 +215,12 @@ public class AbrpGeckViewFragment extends Fragment {
   public void onResume() {
     super.onResume();
     mBtnRealodAbrp.setVisibility(View.VISIBLE);
-    String token = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getString(PREFERENCES_TOKEN, null);
+    String token = mSharedPreferences.getString(PREFERENCES_TOKEN, null);
     if (token == null || token.length() == 0) {
       mBtnGetAbrpToken.setVisibility(View.VISIBLE);
     }
+
+    setCss();
   }
 
   @Override
@@ -292,5 +303,21 @@ public class AbrpGeckViewFragment extends Fragment {
         mGeckoSession.loadUri(getAbrpUrl());
       }
     }).start();
+  }
+
+  private void setCss() {
+    if(mPort != null) {
+      JSONObject message = new JSONObject();
+      try {
+        if(mSharedPreferences.getBoolean(PREFERENCES_APLLY_CSS, false)) {
+          message.put("setCss", true);
+        } else {
+          message.put("removeCss", true);
+        }
+      } catch (JSONException ex) {
+        sLog.error("error building setCss json", ex);
+      }
+      mPort.postMessage(message);
+    }
   }
 }

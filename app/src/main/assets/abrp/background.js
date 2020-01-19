@@ -13,6 +13,10 @@ port.onMessage.addListener(response => {
       code = 'document.getElementById("zoomout").click()';
     } else if (response.toggleNight) {
       code = 'document.getElementById("toolbar-nightbutton").click()';
+    } else if(response.setCss) {
+      browser.tabs.insertCSS({file: "abrptransmitter.css"});
+    } else if(response.removeCss) {
+      browser.tabs.removeCSS({file: "abrptransmitter.css"});
     }
     if(code != '') {
       browser.tabs.executeScript({
@@ -23,4 +27,3 @@ port.onMessage.addListener(response => {
     port.postMessage(e);
   }
 });
-port.postMessage("Hello from WebExtension!");
