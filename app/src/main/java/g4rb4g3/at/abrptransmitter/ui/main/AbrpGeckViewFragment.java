@@ -97,8 +97,7 @@ public class AbrpGeckViewFragment extends Fragment {
       @Override
       public void onPortMessage(final @NonNull Object message,
                                 final @NonNull WebExtension.Port port) {
-        sLog.info("PortDelegate", "Received message from WebExtension: "
-            + message);
+        sLog.info("Received message from WebExtension: " + message);
       }
 
       @Override
@@ -194,7 +193,7 @@ public class AbrpGeckViewFragment extends Fragment {
           }
         });
       }
-      
+
       mGeckoSession.open(mGeckoRuntime);
       mGeckoView.setSession(mGeckoSession);
       mGeckoSession.loadUri(getAbrpUrl());
@@ -249,7 +248,7 @@ public class AbrpGeckViewFragment extends Fragment {
           return false;
       }
     } catch (JSONException ex) {
-      throw new RuntimeException(ex);
+      sLog.error("error building onKeyEvent json", ex);
     }
     mPort.postMessage(message);
     return true;
