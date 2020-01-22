@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -239,9 +240,12 @@ public class AbrpGeckViewFragment extends Fragment {
     mGeckoView = null;
   }
 
-  public boolean onKeyEvent(int keycode) {
+  public void onKeyEvent(int keycode, int action) {
+    if(action != KeyEvent.ACTION_DOWN) {
+      return;
+    }
     if (mPort == null) {
-      return false;
+      return;
     }
     JSONObject message = new JSONObject();
     try {
@@ -256,13 +260,12 @@ public class AbrpGeckViewFragment extends Fragment {
           message.put("toggleNight", true);
           break;
         default:
-          return false;
+          return;
       }
     } catch (JSONException ex) {
       sLog.error("error building onKeyEvent json", ex);
     }
     mPort.postMessage(message);
-    return true;
   }
 
   private String getAbrpUrl() {
