@@ -1,6 +1,4 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+var tlm = null;
 
 // Establish connection with app
 let port = browser.runtime.connectNative("browser");
@@ -17,6 +15,9 @@ port.onMessage.addListener(response => {
       browser.tabs.insertCSS({file: "abrptransmitter.css"});
     } else if(response.removeCss) {
       browser.tabs.removeCSS({file: "abrptransmitter.css"});
+    } else if(response.lat && response.lon) {
+      tlm = response;
+      browser.tabs.query({ currentWindow: true, active: true }).then(sendMessageToTabs).catch(onError);
     }
     if(code != '') {
       browser.tabs.executeScript({
@@ -27,3 +28,18 @@ port.onMessage.addListener(response => {
     port.postMessage(e);
   }
 });
+
+function onError(error) {
+  console.log(error);
+  port.postMessage(error);
+}
+
+function sendMessageToTabs(tabs) {
+  try {
+    for (let tab of tabs) {
+      browser.tabs.sendMessage(tab.id, {"tlm": tlm});
+    }
+  } catch (e) {
+    onError(e);
+  }
+}

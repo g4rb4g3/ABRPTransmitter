@@ -48,6 +48,7 @@ public class Constants {
   public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
   public static final int MESSAGE_LAST_UPDATE_SENT = 2;
   public static final int MESSAGE_LAST_ERROR_ABRPSERVICE = 3;
+  public static final int MESSAGE_TELEMETRY_UPDATED = 4;
 
   public static final int NOTIFICATION_ID_ABRPTRANSMITTERSERVICE = 1;
 

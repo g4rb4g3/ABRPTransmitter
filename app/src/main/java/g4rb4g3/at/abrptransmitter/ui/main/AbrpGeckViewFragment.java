@@ -3,8 +3,13 @@ package g4rb4g3.at.abrptransmitter.ui.main;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +45,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.TLSSocketFactory;
+import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_PRESS;
@@ -51,6 +57,8 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_UPDATE_SENT;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_TELEMETRY_UPDATED;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APLLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
@@ -72,6 +80,38 @@ public class AbrpGeckViewFragment extends Fragment {
   private WebExtension.Port mPort;
 
   private SharedPreferences mSharedPreferences;
+
+  private AbrpTransmitterService mService;
+  private boolean mBound = false;
+  private Handler mHandler = new Handler(Looper.getMainLooper()) {
+    @Override
+    public void handleMessage(final Message msg) {
+      if(mPort == null) {
+        return;
+      }
+
+      if(msg.what == MESSAGE_TELEMETRY_UPDATED) {
+        JSONObject tlm = (JSONObject)msg.obj;
+        mPort.postMessage(tlm);
+      }
+    }
+  };
+
+  private ServiceConnection mServiceConnection = new ServiceConnection() {
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+      AbrpTransmitterService.AbrpTransmitterBinder binder = (AbrpTransmitterService.AbrpTransmitterBinder) service;
+      mService = binder.getService();
+      mBound = true;
+
+      mService.registerHandler(mHandler);
+    }
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+      mBound = false;
+    }
+  };
 
   public AbrpGeckViewFragment() {
     // Required empty public constructor
@@ -95,6 +135,7 @@ public class AbrpGeckViewFragment extends Fragment {
     mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
     GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
+        .remoteDebuggingEnabled(true) //TODO: remove on release
         .configFilePath(""); //required to get rid of  java.lang.VerifyError: org/yaml/snakeyaml/introspector/PropertyUtils https://bugzilla.mozilla.org/show_bug.cgi?id=1567115
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
 
@@ -221,6 +262,9 @@ public class AbrpGeckViewFragment extends Fragment {
     }
 
     setCss();
+
+    Intent intent = new Intent(getContext(), AbrpTransmitterService.class);
+    getActivity().bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
   }
 
   @Override
@@ -229,6 +273,11 @@ public class AbrpGeckViewFragment extends Fragment {
     mBtnRealodAbrp.setVisibility(View.INVISIBLE);
     mPbGeckoView.setVisibility(View.GONE);
     mBtnGetAbrpToken.setVisibility(View.GONE);
+
+    if (mBound) {
+      mService.unregisterHandler(mHandler);
+      getActivity().unbindService(mServiceConnection);
+    }
   }
 
   @Override

@@ -68,6 +68,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_SEND_UPDATE;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_ERROR_ABRPSERVICE;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_UPDATE_SENT;
+import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_TELEMETRY_UPDATED;
 import static g4rb4g3.at.abrptransmitter.Constants.NOTIFICATION_ID_ABRPTRANSMITTERSERVICE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -267,6 +268,15 @@ public class AbrpTransmitterService extends Service {
       try {
         mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
 
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
+
+        notifyHandlers(MESSAGE_TELEMETRY_UPDATED, mJTlmObj);
+
         if (!mWifiConnected) {
           notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, getString(R.string.no_wifi_ip));
           return;
@@ -284,13 +294,6 @@ public class AbrpTransmitterService extends Service {
           sLog.error(msg);
           return;
         }
-
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
 
         StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_API_URL)
             .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
