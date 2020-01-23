@@ -70,7 +70,7 @@ public class AbrpGeckViewFragment extends Fragment {
   GeckoRuntime mGeckoRuntime;
   Button mBtnRealodAbrp, mBtnGetAbrpToken;
   ProgressBar mPbGeckoView;
-  private WebExtension.Port mPort;
+  private WebExtension.Port mWebExtensionPort;
 
   private SharedPreferences mSharedPreferences;
 
@@ -98,38 +98,6 @@ public class AbrpGeckViewFragment extends Fragment {
     GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
         .configFilePath(""); //required to get rid of  java.lang.VerifyError: org/yaml/snakeyaml/introspector/PropertyUtils https://bugzilla.mozilla.org/show_bug.cgi?id=1567115
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
-
-    WebExtension.PortDelegate portDelegate = new WebExtension.PortDelegate() {
-      @Override
-      public void onPortMessage(final @NonNull Object message,
-                                final @NonNull WebExtension.Port port) {
-        sLog.info("Received message from WebExtension: " + message);
-      }
-
-      @Override
-      public void onDisconnect(final @NonNull WebExtension.Port port) {
-        // This port is not usable anymore.
-        if (port == mPort) {
-          mPort = null;
-        }
-      }
-    };
-
-    WebExtension.MessageDelegate messageDelegate = new WebExtension.MessageDelegate() {
-      @Override
-      @Nullable
-      public void onConnect(final @NonNull WebExtension.Port port) {
-        mPort = port;
-        mPort.setDelegate(portDelegate);
-      }
-    };
-
-    WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING);
-    extension.setMessageDelegate(messageDelegate, "browser");
-    mGeckoRuntime.registerWebExtension(extension).exceptionally(exception -> {
-      sLog.error("", exception);
-      return null;
-    });
   }
 
   @Override
@@ -144,8 +112,15 @@ public class AbrpGeckViewFragment extends Fragment {
     mPbGeckoView = view.findViewById(R.id.pb_geckoview);
     mGeckoView = view.findViewById(R.id.gv_abrp);
 
+    return view;
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
+
     if (mGeckoSession == null || !mGeckoSession.isOpen()) {
-      if(mGeckoSession == null) {
+      if (mGeckoSession == null) {
         mGeckoSession = new GeckoSession();
         mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
           @Nullable
@@ -180,7 +155,6 @@ public class AbrpGeckViewFragment extends Fragment {
                 }
                 loadToken(authCode);
               }
-              return GeckoResult.DENY;
             }
             return null;
           }
@@ -197,8 +171,8 @@ public class AbrpGeckViewFragment extends Fragment {
               mPbGeckoView.setVisibility(View.GONE);
             }
 
-            if(progress == 100) {
-              setCss();
+            if (progress == 100) {
+              registerWebExtension();
             }
           }
         });
@@ -208,8 +182,6 @@ public class AbrpGeckViewFragment extends Fragment {
       mGeckoView.setSession(mGeckoSession);
       mGeckoSession.loadUri(getAbrpUrl());
     }
-
-    return view;
   }
 
   @Override
@@ -241,10 +213,10 @@ public class AbrpGeckViewFragment extends Fragment {
   }
 
   public void onKeyEvent(int keycode, int action) {
-    if(action != KeyEvent.ACTION_DOWN) {
+    if (action != KeyEvent.ACTION_DOWN) {
       return;
     }
-    if (mPort == null) {
+    if (mWebExtensionPort == null) {
       return;
     }
     JSONObject message = new JSONObject();
@@ -265,7 +237,7 @@ public class AbrpGeckViewFragment extends Fragment {
     } catch (JSONException ex) {
       sLog.error("error building onKeyEvent json", ex);
     }
-    mPort.postMessage(message);
+    mWebExtensionPort.postMessage(message);
   }
 
   private String getAbrpUrl() {
@@ -308,11 +280,49 @@ public class AbrpGeckViewFragment extends Fragment {
     }).start();
   }
 
+  private void registerWebExtension() {
+    if(mWebExtensionPort != null) {
+      return;
+    }
+
+    WebExtension.MessageDelegate messageDelegate = new WebExtension.MessageDelegate() {
+      @Override
+      @Nullable
+      public void onConnect(final @NonNull WebExtension.Port port) {
+        mWebExtensionPort = port;
+        mWebExtensionPort.setDelegate(new WebExtension.PortDelegate() {
+          @Override
+          public void onPortMessage(@NonNull Object message, @NonNull WebExtension.Port port) {
+            sLog.info("Received message from WebExtension: " + message);
+          }
+
+          @NonNull
+          @Override
+          public void onDisconnect(@NonNull WebExtension.Port port) {
+            // This port is not usable anymore.
+            if (port == mWebExtensionPort) {
+              mWebExtensionPort = null;
+            }
+          }
+        });
+
+        setCss();
+      }
+    };
+
+    WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING);
+    extension.setMessageDelegate(messageDelegate, "browser");
+    mGeckoRuntime.registerWebExtension(extension).exceptionally(exception -> {
+      sLog.error("", exception);
+      return null;
+    });
+  }
+
   private void setCss() {
-    if(mPort != null) {
+    if (mWebExtensionPort != null) {
       JSONObject message = new JSONObject();
       try {
-        if(mSharedPreferences.getBoolean(PREFERENCES_APLLY_CSS, false)) {
+        if (mSharedPreferences.getBoolean(PREFERENCES_APLLY_CSS, false)) {
           message.put("setCss", true);
         } else {
           message.put("removeCss", true);
@@ -320,7 +330,7 @@ public class AbrpGeckViewFragment extends Fragment {
       } catch (JSONException ex) {
         sLog.error("error building setCss json", ex);
       }
-      mPort.postMessage(message);
+      mWebExtensionPort.postMessage(message);
     }
   }
 }
