@@ -52,7 +52,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
-import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APLLY_CSS;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -325,7 +325,7 @@ public class AbrpGeckViewFragment extends Fragment {
     if (mWebExtensionPort != null) {
       JSONObject message = new JSONObject();
       try {
-        if (mSharedPreferences.getBoolean(PREFERENCES_APLLY_CSS, false)) {
+        if (mSharedPreferences.getBoolean(PREFERENCES_APPLY_CSS, false)) {
           message.put("setCss", true);
         } else {
           message.put("removeCss", true);

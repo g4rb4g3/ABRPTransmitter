@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 import g4rb4g3.at.abrptransmitter.ui.main.AbrpGeckViewFragment;
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
+import g4rb4g3.at.abrptransmitter.ui.main.SwitchableSwipeViewPager;
 
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_PRESS;
@@ -29,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
     mSectionsPageAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
-    ViewPager viewPager = findViewById(R.id.view_pager);
+    SwitchableSwipeViewPager viewPager = findViewById(R.id.view_pager);
     viewPager.setAdapter(mSectionsPageAdapter);
     mTabs = findViewById(R.id.tabs);
     mTabs.setupWithViewPager(viewPager);
