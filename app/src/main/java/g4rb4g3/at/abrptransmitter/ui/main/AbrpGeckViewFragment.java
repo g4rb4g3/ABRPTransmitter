@@ -98,6 +98,8 @@ public class AbrpGeckViewFragment extends Fragment {
     GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
         .configFilePath(""); //required to get rid of  java.lang.VerifyError: org/yaml/snakeyaml/introspector/PropertyUtils https://bugzilla.mozilla.org/show_bug.cgi?id=1567115
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
+
+    registerWebExtension();
   }
 
   @Override
@@ -155,6 +157,7 @@ public class AbrpGeckViewFragment extends Fragment {
                 }
                 loadToken(authCode);
               }
+              return GeckoResult.DENY;
             }
             return null;
           }
@@ -172,7 +175,7 @@ public class AbrpGeckViewFragment extends Fragment {
             }
 
             if (progress == 100) {
-              registerWebExtension();
+              setCss();
             }
           }
         });
