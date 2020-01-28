@@ -9,11 +9,15 @@ $.getJSON = function (e, t, n) {
 
   var deferred = $.Deferred();
   try {
-    if(abrptransmitterTlm == null) {
-      deferred.resolve({"status": "error"});
-    } else {
-      deferred.resolve({"status": "ok", "result": abrptransmitterTlm});
-    }
+    getJSON.apply(this, arguments).done(function (data) {
+      deferred.resolve(data)
+    }).fail(function () {
+      if (abrptransmitterTlm == null) {
+        deferred.resolve({ "status": "error" });
+      } else {
+        deferred.resolve({ "status": "ok", "result": abrptransmitterTlm });
+      }
+    });
   } catch (e) {
     deferred.reject(e);
   }
