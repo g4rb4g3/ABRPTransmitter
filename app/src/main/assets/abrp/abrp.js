@@ -5,7 +5,6 @@ s.src = browser.runtime.getURL("getjson.js");
 
 //listener for telemetry messages from background js
 browser.runtime.onMessage.addListener(request => {
-  console.log(request.tlm); //TODO: remove on release
   if(request.tlm) {
     window.wrappedJSObject.abrptransmitterTlm = cloneInto(request.tlm, window);
   }

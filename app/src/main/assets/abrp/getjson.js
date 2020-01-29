@@ -2,7 +2,6 @@ var abrptransmitterTlm = null;
 var getJSON = $.getJSON;
 
 $.getJSON = function (e, t, n) {
-  console.log(e);
   if (!e.includes("get_sharing_telemetry") && !e.includes("get_vehicle_telemetry") && !e.includes("get_user_telemetry")) {
     return getJSON.apply(this, arguments);
   }
