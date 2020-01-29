@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.MainApplication;
@@ -36,8 +37,13 @@ public class LogFragment extends Fragment implements LogFileLoader.ILogFileLoade
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_log, container, false);
-
     mTvLog = view.findViewById(R.id.tv_log);
+    return view;
+  }
+
+  @Override
+  public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    super.onViewCreated(view, savedInstanceState);
 
     File logFile = ((MainApplication) getActivity().getApplication()).getCurrentLogFile();
 
@@ -51,7 +57,6 @@ public class LogFragment extends Fragment implements LogFileLoader.ILogFileLoade
         new LogFileLoader(LogFragment.this).execute(parent + "/" + path);
       }
     };
-    return view;
   }
 
   @Override

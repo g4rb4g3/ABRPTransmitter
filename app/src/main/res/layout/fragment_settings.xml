@@ -112,4 +112,14 @@
         app:layout_constraintStart_toStartOf="@+id/cb_nomap"
         app:layout_constraintTop_toBottomOf="@+id/cb_nomap" />
 
+    <CheckBox
+        android:id="@+id/cb_disable_tab_swipe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Disable tab swipe"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cb_transmit" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
