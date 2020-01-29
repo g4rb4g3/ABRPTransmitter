@@ -88,13 +88,13 @@ public class AbrpGeckViewFragment extends Fragment {
   private Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
     public void handleMessage(final Message msg) {
-      if(mPort == null) {
+      if(mWebExtensionPort == null) {
         return;
       }
 
       if(msg.what == MESSAGE_TELEMETRY_UPDATED) {
         JSONObject tlm = (JSONObject)msg.obj;
-        mPort.postMessage(tlm);
+        mWebExtensionPort.postMessage(tlm);
       }
     }
   };
