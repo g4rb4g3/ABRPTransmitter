@@ -13,7 +13,7 @@ $.getJSON = function (e, t, n) {
       if (abrptransmitterTlm != null) {
         if (data.status == "ok") {
           var tlm_age = (new Date()).getTime() / 1000 - data.result.utc;
-          if (tlm_age > 10 && ) { // TODO: find good value here, ABRP assumes > 90s is bad but that would cause slow UI updates. We update each 5s, so at least two tlm sets should come in here
+          if (tlm_age > 10) { // TODO: find good value here, ABRP assumes > 90s is bad but that would cause slow UI updates. We update each 5s, so at least two tlm sets should come in here
             Object.assign(data.result, abrptransmitterTlm); // this will merge the remote result with local data
           }
         } else {
