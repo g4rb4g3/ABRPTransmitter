@@ -112,7 +112,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, mCbTransmitData.isChecked());
         sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
-        sped .putBoolean(PREFERENCES_APPLY_CSS, mCbApplyCss.isChecked());
+        sped.putBoolean(PREFERENCES_APPLY_CSS, mCbApplyCss.isChecked());
         sped.putBoolean(PREFERENCES_DISABLE_TAB_SWIPE, mCbDisableTabSwipe.isChecked());
         sped.commit();
 
