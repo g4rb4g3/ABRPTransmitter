@@ -10,10 +10,11 @@ $.getJSON = function (e, t, n) {
   var deferred = $.Deferred();
   try {
     getJSON.apply(this, arguments).done(function (data) {
-      var res = data.result;
-      var tlm_age = (new Date()).getTime() / 1000 - res.utc;
-      if (tlm_age > 10 && abrptransmitterTlm != null) { // TODO: find good value here, ABRP assumes > 90s is bad but that would cause slow UI updates. We update each 5s, so at least two tlm sets should come in here
-        Object.assign(data.result, abrptransmitterTlm); // this will overwrite the remote result with local data
+      if (data.status == "ok") {
+        var tlm_age = (new Date()).getTime() / 1000 - data.result.utc;
+        if (tlm_age > 10 && abrptransmitterTlm != null) { // TODO: find good value here, ABRP assumes > 90s is bad but that would cause slow UI updates. We update each 5s, so at least two tlm sets should come in here
+          Object.assign(data.result, abrptransmitterTlm); // this will overwrite the remote result with local data
+        }
       }
       deferred.resolve(data)
     }).fail(function () {
