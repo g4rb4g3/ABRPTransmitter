@@ -16,17 +16,24 @@ import android.os.Message;
 import com.lge.ivi.carinfo.CarInfoManager;
 import com.lge.ivi.greencar.GreenCarManager;
 import com.lge.ivi.hvac.HvacManager;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -37,14 +44,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import cz.msebera.android.httpclient.Header;
 import g4rb4g3.at.abrptransmitter.R;
+import g4rb4g3.at.abrptransmitter.TLSSocketFactory;
 import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_KEY;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CAR_MODEL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CHARGING;
@@ -54,9 +64,10 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_GPS_
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_POWER;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_SOC;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_SPEED;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_STATUS;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_STATUS_OK;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_TIME;
-import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_API_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_API_KEY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TELEMETRY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TOKEN;
@@ -240,34 +251,9 @@ public class AbrpTransmitterService extends Service {
   }
 
   private class AbrpUpdater implements Runnable {
-    private AsyncHttpClient mAsyncHttpClient = new AsyncHttpClient(true, 80, 443);
-    private AsyncHttpResponseHandler mAsyncHttpResponseHandler = new AsyncHttpResponseHandler() {
-      @Override
-      public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-        notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
-      }
-
-      @Override
-      public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-        if (error instanceof IOException && error.getMessage().startsWith("UnknownHostException")) {
-          sLog.info(error.getMessage());
-        } else {
-          sLog.error("error sending update", error);
-        }
-        notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, error.getLocalizedMessage());
-      }
-
-      @Override
-      public boolean getUseSynchronousMode() {
-        return false;
-      }
-    };
-
     @Override
     public void run() {
       try {
-        mAsyncHttpClient.setTimeout((int) INTERVAL_SEND_UPDATE - 200); // request needs to timeout before next request so we do not end up with multiple concurrent requests
-
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
@@ -306,9 +292,55 @@ public class AbrpTransmitterService extends Service {
           return;
         }
 
-        mAsyncHttpClient.get(url.toString(), mAsyncHttpResponseHandler);
+        sendUpdate(url.toString());
       } catch (JSONException e) {
         sLog.error("error sending update", e);
+      }
+    }
+
+    private void sendUpdate(String url) {
+      HttpsURLConnection connection = null;
+      BufferedReader reader = null;
+      try {
+        connection = (HttpsURLConnection) new URL(url).openConnection();
+        connection.setConnectTimeout((int) INTERVAL_SEND_UPDATE - 200);
+        connection.setSSLSocketFactory(new TLSSocketFactory());
+        connection.connect();
+
+        InputStream stream = connection.getInputStream();
+        reader = new BufferedReader(new InputStreamReader(stream));
+        StringBuffer buffer = new StringBuffer();
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+          buffer.append(line);
+        }
+        String json = buffer.toString();
+        JSONObject jsonObject = new JSONObject(json);
+        String status = jsonObject.getString(ABETTERROUTEPLANNER_JSON_STATUS);
+        if (!status.equals(ABETTERROUTEPLANNER_JSON_STATUS_OK)) {
+          sLog.error("error sending telemetry data to abrp, returned api status: " + status);
+        } else {
+          notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
+        }
+      } catch (Exception e) {
+        if(e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
+          sLog.error(e.getLocalizedMessage());
+        } else {
+          sLog.error("error sending telemetry data to abrp", e);
+        }
+        notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, e.getLocalizedMessage());
+      } finally {
+        if (connection != null) {
+          connection.disconnect();
+        }
+        if (reader != null) {
+          try {
+            reader.close();
+          } catch (IOException e) {
+            sLog.error("error closing reader while sending telemetry data to abrp", e);
+          }
+        }
       }
     }
   }

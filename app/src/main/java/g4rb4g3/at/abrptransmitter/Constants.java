@@ -31,6 +31,8 @@ public class Constants {
   public static final String ABETTERROUTEPLANNER_JSON_CHARGING = "is_charging";        //0 driving, 1 charging
   public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL = "car_model";
   public static final String ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28 = "hyundai:ioniq:17:28:other";
+  public static final String ABETTERROUTEPLANNER_JSON_STATUS = "status";
+  public static final String ABETTERROUTEPLANNER_JSON_STATUS_OK = "ok";
 
   public static final String EXTRA_LAT = "com.hkmc.telematics.gis.extra.LAT";
   public static final String EXTRA_LON = "com.hkmc.telematics.gis.extra.LON";
