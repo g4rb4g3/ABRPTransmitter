@@ -40,6 +40,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -161,6 +162,8 @@ public class AbrpTransmitterService extends Service {
         }
       }
     }
+
+    sLog.info(mScheduledExecutorService.toString());
     return START_STICKY;
   }
 
@@ -254,6 +257,7 @@ public class AbrpTransmitterService extends Service {
     @Override
     public void run() {
       try {
+        sLog.info("AbrpUpdater, updating telemetry object");
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
@@ -261,6 +265,7 @@ public class AbrpTransmitterService extends Service {
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
 
+        sLog.info("AbrpUpdater, notify handlers about updated telemetry object");
         notifyHandlers(MESSAGE_TELEMETRY_UPDATED, mJTlmObj);
 
         if (!mWifiConnected) {
@@ -281,6 +286,7 @@ public class AbrpTransmitterService extends Service {
           return;
         }
 
+        sLog.info("AbrpUpdater, preparing url for telemetry update");
         StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_API_URL)
             .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
             .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
@@ -292,13 +298,21 @@ public class AbrpTransmitterService extends Service {
           return;
         }
 
+        sLog.info("AbrpUpdater, calling url for telemetry update");
         sendUpdate(url.toString());
-      } catch (JSONException e) {
-        sLog.error("error sending update", e);
+      } catch (Exception e) {
+        if(e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
+          sLog.error(e.getLocalizedMessage());
+        } else {
+          sLog.error("error sending telemetry data to abrp", e);
+        }
+        notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, e.getLocalizedMessage());
+      } finally {
+        sLog.info("AbrpUpdater finished");
       }
     }
 
-    private void sendUpdate(String url) {
+    private void sendUpdate(String url) throws IOException, NoSuchAlgorithmException, KeyManagementException, JSONException {
       HttpsURLConnection connection = null;
       BufferedReader reader = null;
       try {
@@ -323,23 +337,12 @@ public class AbrpTransmitterService extends Service {
         } else {
           notifyHandlers(MESSAGE_LAST_UPDATE_SENT, Utils.getTimestamp());
         }
-      } catch (Exception e) {
-        if(e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
-          sLog.error(e.getLocalizedMessage());
-        } else {
-          sLog.error("error sending telemetry data to abrp", e);
-        }
-        notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, e.getLocalizedMessage());
       } finally {
         if (connection != null) {
           connection.disconnect();
         }
         if (reader != null) {
-          try {
-            reader.close();
-          } catch (IOException e) {
-            sLog.error("error closing reader while sending telemetry data to abrp", e);
-          }
+          reader.close();
         }
       }
     }

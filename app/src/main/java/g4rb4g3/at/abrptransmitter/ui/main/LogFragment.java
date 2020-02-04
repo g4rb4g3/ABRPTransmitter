@@ -54,6 +54,7 @@ public class LogFragment extends Fragment implements LogFileLoader.ILogFileLoade
         if (path == null || !path.endsWith(".log")) {
           return;
         }
+        mFileObserver.stopWatching();
         new LogFileLoader(LogFragment.this).execute(parent + "/" + path);
       }
     };
