@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -194,54 +193,52 @@ public class AbrpTransmitterService extends Service {
     }
   }
 
-  private static class AverageCollector implements Runnable {
-    private LinkedHashMap<Long, Double> sConsumptionCollector = new LinkedHashMap<>();
-    private GreenCarManager sGreenCarManager;
-    private volatile boolean sCollect = true;
+  private class AverageCollector implements Runnable {
+    private LinkedHashMap<Long, Double> mConsumptionCollector = new LinkedHashMap<>();
+    private GreenCarManager mGreenCarManager;
 
     private AverageCollector(GreenCarManager greenCarManager) {
-      sGreenCarManager = greenCarManager;
+      mGreenCarManager = greenCarManager;
     }
 
     public double getAverage() {
-      if (sConsumptionCollector.size() == 0) {
+      if (mConsumptionCollector.size() == 0) {
         return 0.0;
       }
-      sCollect = false;
-      double average;
-      if (sConsumptionCollector.size() == 1) {
-        average = sConsumptionCollector.values().iterator().next();
-      } else {
-        long start = Collections.min(sConsumptionCollector.keySet());
-        long end = Collections.max(sConsumptionCollector.keySet());
-        long duration = end - start;
-        double consumptionSum = 0;
-        double lastConsumption = sConsumptionCollector.get(start);
-        sConsumptionCollector.remove(start);
-        for (Map.Entry<Long, Double> e : sConsumptionCollector.entrySet()) {
-          end = e.getKey();
-          consumptionSum += lastConsumption * (end - start);
-          start = end;
-          lastConsumption = e.getValue();
+      synchronized (AbrpTransmitterService.this) {
+        double average;
+        if (mConsumptionCollector.size() == 1) {
+          average = mConsumptionCollector.values().iterator().next();
+        } else {
+          long start = Collections.min(mConsumptionCollector.keySet());
+          long end = Collections.max(mConsumptionCollector.keySet());
+          long duration = end - start;
+          double consumptionSum = 0;
+          double lastConsumption = mConsumptionCollector.get(start);
+          mConsumptionCollector.remove(start);
+          for (Map.Entry<Long, Double> e : mConsumptionCollector.entrySet()) {
+            end = e.getKey();
+            consumptionSum += lastConsumption * (end - start);
+            start = end;
+            lastConsumption = e.getValue();
+          }
+          average = consumptionSum / duration;
         }
-        average = consumptionSum / duration;
+        mConsumptionCollector.clear();
+        return average;
       }
-      sConsumptionCollector.clear();
-      sCollect = true;
-      return average;
     }
 
     @Override
     public void run() {
-      if (!sCollect) {
-        return;
-      }
-      double aircon = sGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
-      double heating = sGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
-      double electric = sGreenCarManager.getCrLdcPwrMonW() / 100.0;
-      byte engine = (byte) sGreenCarManager.getCrMcuMotPwrAvnKw();
+      double aircon = mGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
+      double heating = mGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
+      double electric = mGreenCarManager.getCrLdcPwrMonW() / 100.0;
+      byte engine = (byte) mGreenCarManager.getCrMcuMotPwrAvnKw();
 
-      sConsumptionCollector.put(System.currentTimeMillis(), aircon + heating + electric + engine);
+      synchronized (AbrpTransmitterService.this) {
+        mConsumptionCollector.put(System.currentTimeMillis(), aircon + heating + electric + engine);
+      }
     }
   }
 
@@ -299,7 +296,7 @@ public class AbrpTransmitterService extends Service {
         sLog.info("AbrpUpdater, calling url for telemetry update");
         sendUpdate(url.toString());
       } catch (Exception e) {
-        if(e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
+        if (e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
           sLog.error(e.getLocalizedMessage());
         } else {
           sLog.error("error sending telemetry data to abrp", e);
