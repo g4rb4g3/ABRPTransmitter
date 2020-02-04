@@ -162,8 +162,6 @@ public class AbrpTransmitterService extends Service {
         }
       }
     }
-
-    sLog.info(mScheduledExecutorService.toString());
     return START_STICKY;
   }
 
@@ -309,6 +307,7 @@ public class AbrpTransmitterService extends Service {
         notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, e.getLocalizedMessage());
       } finally {
         sLog.info("AbrpUpdater finished");
+        sLog.info(mScheduledExecutorService.toString());
       }
     }
 
