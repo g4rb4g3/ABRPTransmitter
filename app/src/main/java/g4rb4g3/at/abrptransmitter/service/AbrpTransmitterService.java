@@ -231,13 +231,14 @@ public class AbrpTransmitterService extends Service {
 
     @Override
     public void run() {
+      long now = System.currentTimeMillis();
       double aircon = mGreenCarManager.getCrDatcAcnCompPwrConW() / 100.0;
       double heating = mGreenCarManager.getCrDatcPtcPwrConW() / 100.0;
       double electric = mGreenCarManager.getCrLdcPwrMonW() / 100.0;
       byte engine = (byte) mGreenCarManager.getCrMcuMotPwrAvnKw();
 
       synchronized (AbrpTransmitterService.this) {
-        mConsumptionCollector.put(System.currentTimeMillis(), aircon + heating + electric + engine);
+        mConsumptionCollector.put(now, aircon + heating + electric + engine);
       }
     }
   }
