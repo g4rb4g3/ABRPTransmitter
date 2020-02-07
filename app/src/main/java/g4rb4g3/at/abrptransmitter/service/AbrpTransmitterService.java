@@ -314,7 +314,8 @@ public class AbrpTransmitterService extends Service {
       BufferedReader reader = null;
       try {
         connection = (HttpsURLConnection) new URL(url).openConnection();
-        connection.setConnectTimeout((int) INTERVAL_SEND_UPDATE - 200);
+        connection.setConnectTimeout((int) INTERVAL_SEND_UPDATE / 2 - 100);
+        connection.setReadTimeout((int) INTERVAL_SEND_UPDATE  /  2 - 100);
         connection.setSSLSocketFactory(new TLSSocketFactory());
         connection.connect();
 
