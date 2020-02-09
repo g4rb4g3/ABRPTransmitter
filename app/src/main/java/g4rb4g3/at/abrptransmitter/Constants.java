@@ -47,6 +47,7 @@ public class Constants {
   public static final String PREFERENCES_NOMAP = "nomap";
   public static final String PREFERENCES_APPLY_CSS = "applyCss";
   public static final String PREFERENCES_DISABLE_TAB_SWIPE = "disableTabSwipe";
+  public static final String PREFERENCES_LOG_LEVEL = "logLevel";
 
   public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
   public static final int MESSAGE_LAST_UPDATE_SENT = 2;

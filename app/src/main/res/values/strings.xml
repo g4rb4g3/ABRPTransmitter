@@ -26,4 +26,6 @@
     <string name="installing">Starting installing, please restart app in about 30 seconds.</string>
     <string name="load_abrp_with_no_map_mode">Load ABRP with no map mode</string>
     <string name="increase_abrp_buttons">Increase ABRP buttons size</string>
+    <string name="log_level">Log level:</string>
+    <string name="disable_tab_swipe">Disable tab swipe</string>
 </resources>

@@ -11,10 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/app_name"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="24dp"
+        android:text="Installed Version:"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tv_app_version"
@@ -30,28 +30,31 @@
         android:layout_width="0dp"
         android:layout_height="23dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         android:text="@string/abrp_mail"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_abrp_token"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_app_version" />
+        app:layout_constraintTop_toTopOf="@+id/tv_abrp_token" />
 
     <EditText
         android:id="@+id/tv_abrp_token"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/abrp_mail"
-        app:layout_constraintTop_toTopOf="@+id/abrp_mail" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/bt_save"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:text="@string/save"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.499"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cb_apply_css" />
+        app:layout_constraintTop_toBottomOf="@+id/sp_log_level" />
 
     <CheckBox
         android:id="@+id/cb_transmit"
@@ -68,10 +71,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
         android:text="@string/release"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bt_save" />
+        app:layout_constraintStart_toEndOf="@+id/tv_app_version"
+        app:layout_constraintTop_toTopOf="@+id/tv_app_name" />
 
     <Spinner
         android:id="@+id/sp_releases"
@@ -118,8 +120,30 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Disable tab swipe"
+        android:text="@string/disable_tab_swipe"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cb_transmit" />
+
+    <Spinner
+        android:id="@+id/sp_log_level"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:entries="@array/loglevels"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_log_level"
+        app:layout_constraintTop_toBottomOf="@+id/cb_apply_css" />
+
+    <TextView
+        android:id="@+id/tv_log_level"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="2dp"
+        android:text="@string/log_level"
+        app:layout_constraintBottom_toBottomOf="@+id/sp_log_level"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

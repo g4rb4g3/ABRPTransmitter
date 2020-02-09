@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 
 import androidx.fragment.app.Fragment;
+import g4rb4g3.at.abrptransmitter.MainApplication;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.asynctasks.AbrpTransmitterReleaseLoader;
@@ -32,6 +33,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_DISABLE_TAB_SWIPE;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_LOG_LEVEL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
@@ -46,6 +48,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   private CheckBox mCbApplyCss;
   private CheckBox mCbDisableTabSwipe;
   private Spinner mSpReleases;
+  private Spinner mSpLogLevel;
   private SharedPreferences mSharedPreferences;
   private LinkedHashMap<String, String> mReleases = new LinkedHashMap<>();
   private ProgressDialog mProgressDialog;
@@ -81,6 +84,7 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mCbApplyCss = view.findViewById(R.id.cb_apply_css);
     mCbDisableTabSwipe = view.findViewById(R.id.cb_disable_tab_swipe);
     mSpReleases = view.findViewById(R.id.sp_releases);
+    mSpLogLevel = view.findViewById(R.id.sp_log_level);
 
     mBtSave.setOnClickListener(this);
     mBtLoadReleases.setOnClickListener(this);
@@ -113,11 +117,13 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
         sped.putBoolean(PREFERENCES_APPLY_CSS, mCbApplyCss.isChecked());
         sped.putBoolean(PREFERENCES_DISABLE_TAB_SWIPE, mCbDisableTabSwipe.isChecked());
+        sped.putString(PREFERENCES_LOG_LEVEL, mSpLogLevel.getSelectedItem().toString().toLowerCase());
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();
 
         SwitchableSwipeViewPager.getInstance().setPagingEnabled(!mCbDisableTabSwipe.isChecked());
+        ((MainApplication)getActivity().getApplication()).setLogLevel();
         break;
       case R.id.btn_load_releases:
         if (Utils.getIPAddresses().size() == 0) {
