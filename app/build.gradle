@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+ext {
+    geckoview_channel = "geckoview"
+    geckoview_version = "72.0.20200107212822"
+}
+
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -7,14 +12,24 @@ android {
         minSdkVersion 17
         targetSdkVersion 17
         versionCode 1
-        versionName "1.0"
+        versionName "3.1.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "versionName", variant.versionName
     }
 }
 
@@ -29,7 +44,165 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     compileOnly fileTree(include: ['*.jar'], dir: 'externallibs')
-    implementation 'com.loopj.android:android-async-http:1.4.9'
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation('com.github.bright:slf4android:0.1.6') { transitive = true }
+    implementation "org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}"
 }
+
+//https://vincent.bernat.ch/en/blog/2016-android-build-time-patch
+//patch geckoview classes so they work out on the ioniq, TODO: check on geckoview update!
+import com.android.build.api.transform.Context
+import com.android.build.api.transform.QualifiedContent
+import com.android.build.api.transform.Transform
+import com.android.build.api.transform.TransformException
+import com.android.build.api.transform.TransformInput
+import com.android.build.api.transform.TransformOutputProvider
+import javassist.ClassPool
+import javassist.CtNewMethod
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+import org.apache.commons.io.IOUtils
+import com.android.build.api.transform.Status
+import org.apache.commons.io.FileUtils
+import com.android.build.api.transform.Format
+
+class PatchGeckoEditable extends Transform {
+    Logger logger = null
+
+    public PatchGeckoEditable(Logger logger) {
+        this.logger = logger;
+    }
+
+    @Override
+    String getName() {
+        return "PatchGeckoEditable"
+    }
+
+    @Override
+    Set<QualifiedContent.ContentType> getInputTypes() {
+        return Collections.singleton(QualifiedContent.DefaultContentType.CLASSES)
+    }
+
+    @Override
+    Set<QualifiedContent.Scope> getScopes() {
+        return Collections.singleton(QualifiedContent.Scope.EXTERNAL_LIBRARIES)
+    }
+
+    @Override
+    boolean isIncremental() {
+        return true
+    }
+
+    @Override
+    void transform(Context context, Collection<TransformInput> inputs, Collection<TransformInput> referencedInputs, TransformOutputProvider outputProvider, boolean isIncremental) throws IOException, TransformException, InterruptedException {
+        inputs.each {
+            it.jarInputs.each {
+                def jarName = it.name
+                def src = it.getFile()
+                logger.info(src.absolutePath)
+                def dest = outputProvider.getContentLocation(jarName,
+                        it.contentTypes, it.scopes,
+                        Format.JAR);
+                def status = it.getStatus()
+                if (status == Status.REMOVED) { // ❶
+                    logger.info("Remove ${src}")
+                    FileUtils.delete(dest)
+                } else if (!isIncremental || status != Status.NOTCHANGED) { // ❷
+
+                    if ("${src}" ==~ ".*geckoview.*-runtime.jar") {
+                        def pool = new ClassPool()
+                        pool.insertClassPath(System.getenv("ANDROID_HOME") + "\\platforms\\android-28\\android.jar")
+                        pool.insertClassPath("${src}")
+                        def ctc = pool.get('org.mozilla.geckoview.GeckoEditable')
+
+                        def ctm = ctc.getDeclaredMethod('shouldProcessKey')
+                        ctc.removeMethod(ctm)
+                        pool.importPackage("android.view.KeyEvent")
+                        ctc.addMethod(CtNewMethod.make("""
+private static boolean shouldProcessKey(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_MENU:
+                return false;
+            case KeyEvent.KEYCODE_BACK:
+                return false;
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                return false;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                return false;
+            case KeyEvent.KEYCODE_SEARCH:
+                return false;
+            case KeyEvent.KEYCODE_HEADSETHOOK:
+                return false;
+            case 302: //IviKeyEvent.KEYCODE_TUNE_PRESS
+                return false;
+            case 303: //IviKeyEvent.KEYCODE_TUNE_UP
+                return false;
+            case 304: //IviKeyEvent.KEYCODE_TUNE_DOWN
+                return false;
+            case 308: //IviKeyEvent.KEYCODE_TRACK_SEEK_UP
+                return false;
+            case 309: //IviKeyEvent.KEYCODE_TRACK_SEEK_DOWN
+                return false;
+            case 313: //IviKeyEvent.KEYCODE_SEEK_UP
+                return false;
+            case 314: //IviKeyEvent.KEYCODE_SEEK_DOWN
+                return false;
+        }
+        return true;
+    }
+""", ctc))
+
+                        def ctc1 = pool.get('org.mozilla.geckoview.GeckoInputConnection')
+                        def ctm1 = ctc1.getDeclaredMethod("onCreateInputConnection")
+                        ctc1.removeMethod(ctm1)
+                        pool.importPackage("android.view.inputmethod.InputConnection")
+                        pool.importPackage("android.view.inputmethod.EditorInfo")
+                        pool.importPackage("android.content.Context")
+                        ctc1.addMethod(CtNewMethod.make("""
+public synchronized InputConnection onCreateInputConnection(EditorInfo var1) {
+    if (this.mIMEState == 0) {
+      return null;
+    } else {
+      Context var2 = this.getView().getContext();
+      var1.imeOptions |= EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN;
+      
+      this.mCurrentInputMethod = "default_input_method";
+      var1.initialSelStart = this.mLastSelectionStart;
+      var1.initialSelEnd = this.mLastSelectionEnd;
+      return this;
+    }
+  }
+""", ctc1))
+
+
+                        // Write back the JAR file
+                        def input = new JarFile(src)
+                        def output = new JarOutputStream(new FileOutputStream(dest))
+
+                        input.entries().each {
+                            if (!it.getName().equals("org/mozilla/geckoview/GeckoEditable.class") && !it.getName().equals("org/mozilla/geckoview/GeckoInputConnection.class")) {
+                                def s = input.getInputStream(it)
+                                output.putNextEntry(new JarEntry(it.getName()))
+                                IOUtils.copy(s, output)
+                                s.close()
+                            }
+                        }
+                        output.putNextEntry(new JarEntry("org/mozilla/geckoview/GeckoEditable.class"))
+                        output.write(ctc.toBytecode())
+
+                        output.putNextEntry(new JarEntry("org/mozilla/geckoview/GeckoInputConnection.class"))
+                        output.write(ctc1.toBytecode())
+
+                        output.close()
+                    } else {
+                        logger.info("Copy ${src}")
+                        FileUtils.copyFile(src, dest)
+                    }
+                }
+            }
+        }
+    }
+}
+
+android.registerTransform(new PatchGeckoEditable(logger))

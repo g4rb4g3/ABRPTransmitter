@@ -1,14 +1,10 @@
 package g4rb4g3.at.abrptransmitter.ui.main;
 
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,61 +20,38 @@ import com.lge.ivi.media.ExtMediaManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import androidx.fragment.app.Fragment;
+import g4rb4g3.at.abrptransmitter.MainApplication;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.asynctasks.AbrpTransmitterReleaseLoader;
-import g4rb4g3.at.abrptransmitter.receiver.ConnectivityChangeReceiver;
 import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
-import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
-import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_AUTOSTART_COMPANION;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_DISABLE_TAB_SWIPE;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_LOG_LEVEL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener, AbrpTransmitterReleaseLoader.IAbrpTransmitterReleaseLoader {
-  private static final Logger sLog = LoggerFactory.getLogger(AbrpTransmitterService.class.getSimpleName());
   private TextView mTvToken;
-  private TextView mTvCompanionIp;
   private Button mBtSave;
   private Button mBtLoadReleases;
   private CheckBox mCbTransmitData;
-  private CheckBox mCbAutostartCompanion;
+  private CheckBox mCbNoMap;
+  private CheckBox mCbApplyCss;
+  private CheckBox mCbDisableTabSwipe;
   private Spinner mSpReleases;
+  private Spinner mSpLogLevel;
   private SharedPreferences mSharedPreferences;
-  private SharedPreferences.OnSharedPreferenceChangeListener mOnSharedPreferenceChangeListener;
   private LinkedHashMap<String, String> mReleases = new LinkedHashMap<>();
   private ProgressDialog mProgressDialog;
-
-  private Handler mHandler = new Handler(Looper.getMainLooper()) {
-    @Override
-    public void handleMessage(Message msg) {
-      switch (msg.what) {
-        case MESSAGE_CONNECTIVITY_CHANGED:
-          final StringBuilder sb = new StringBuilder();
-          for (String ip : ((Collection<String>) msg.obj)) {
-            if (sb.length() > 0) {
-              sb.append(" or ");
-            }
-            sb.append(ip);
-            getActivity().runOnUiThread(new Runnable() {
-              @Override
-              public void run() {
-                mTvCompanionIp.setText(sb.toString());
-              }
-            });
-          }
-          break;
-      }
-    }
-  };
-  private BroadcastReceiver mConnectivityChangedReceiver = new ConnectivityChangeReceiver(mHandler);
 
   public SettingsFragment() {
     // Required empty public constructor
@@ -93,6 +66,9 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+
+    mProgressDialog = new ProgressDialog(getContext());
+    mProgressDialog.setCancelable(false);
   }
 
   @Override
@@ -103,50 +79,32 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mBtSave = view.findViewById(R.id.bt_save);
     mBtLoadReleases = view.findViewById(R.id.btn_load_releases);
     mTvToken = view.findViewById(R.id.tv_abrp_token);
-    mTvCompanionIp = view.findViewById(R.id.tv_companion_ip);
     mCbTransmitData = view.findViewById(R.id.cb_transmit);
-    mCbAutostartCompanion = view.findViewById(R.id.cb_autostart_companion);
+    mCbNoMap = view.findViewById(R.id.cb_nomap);
+    mCbApplyCss = view.findViewById(R.id.cb_apply_css);
+    mCbDisableTabSwipe = view.findViewById(R.id.cb_disable_tab_swipe);
     mSpReleases = view.findViewById(R.id.sp_releases);
+    mSpLogLevel = view.findViewById(R.id.sp_log_level);
 
     mBtSave.setOnClickListener(this);
     mBtLoadReleases.setOnClickListener(this);
 
-    mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
-    mCbAutostartCompanion.setChecked(mSharedPreferences.getBoolean(PREFERENCES_AUTOSTART_COMPANION, false));
-
-    mProgressDialog = new ProgressDialog(getContext());
-    mProgressDialog.setCancelable(false);
-
-    mOnSharedPreferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-      @Override
-      public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        //only settings that can be changed with the companion app
-        switch (key) {
-          case PREFERENCES_TOKEN:
-            mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
-            break;
-          case PREFERENCES_TRANSMIT_DATA:
-            mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
-            break;
-        }
-      }
-    };
+    mCbNoMap.setChecked(mSharedPreferences.getBoolean(PREFERENCES_NOMAP, false));
+    mCbApplyCss.setChecked(mSharedPreferences.getBoolean(PREFERENCES_APPLY_CSS, false));
+    mCbDisableTabSwipe.setChecked(mSharedPreferences.getBoolean(PREFERENCES_DISABLE_TAB_SWIPE, false));
     return view;
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    getContext().registerReceiver(mConnectivityChangedReceiver, new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"));
-    mSharedPreferences.registerOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
+    mTvToken.setText(mSharedPreferences.getString(PREFERENCES_TOKEN, ""));
   }
 
   @Override
   public void onPause() {
     super.onPause();
-    getContext().unregisterReceiver(mConnectivityChangedReceiver);
-    mSharedPreferences.unregisterOnSharedPreferenceChangeListener(mOnSharedPreferenceChangeListener);
   }
 
   @Override
@@ -156,13 +114,19 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         SharedPreferences.Editor sped = mSharedPreferences.edit();
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, mCbTransmitData.isChecked());
-        sped.putBoolean(PREFERENCES_AUTOSTART_COMPANION, mCbAutostartCompanion.isChecked());
+        sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
+        sped.putBoolean(PREFERENCES_APPLY_CSS, mCbApplyCss.isChecked());
+        sped.putBoolean(PREFERENCES_DISABLE_TAB_SWIPE, mCbDisableTabSwipe.isChecked());
+        sped.putString(PREFERENCES_LOG_LEVEL, mSpLogLevel.getSelectedItem().toString().toLowerCase());
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();
+
+        SwitchableSwipeViewPager.getInstance().setPagingEnabled(!mCbDisableTabSwipe.isChecked());
+        ((MainApplication)getActivity().getApplication()).setLogLevel();
         break;
       case R.id.btn_load_releases:
-        if(Utils.getIPAddresses().size() == 0) {
+        if (Utils.getIPAddresses().size() == 0) {
           Toast.makeText(getContext(), getString(R.string.no_wifi_ip), Toast.LENGTH_LONG).show();
           return;
         }

@@ -11,6 +11,10 @@ buildscript {
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+
+        classpath "com.android.tools.build:gradle-api:3.3.2"
+        classpath 'org.javassist:javassist:3.26.0-GA'
+        classpath 'commons-io:commons-io:2.4'
     }
 }
 
@@ -20,6 +24,9 @@ allprojects {
         jcenter()
         maven {
             url "https://jitpack.io"
+        }
+        maven {
+            url "https://maven.mozilla.org/maven2/"
         }
     }
 }

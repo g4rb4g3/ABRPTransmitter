@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "ABRPTransmitter",
+  "version": "1.0",
+  "description": "Adds support for native messaging to abrp.",
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": ["*://abetterrouteplanner.com/*"],
+      "js": ["abrp.js"]
+    }
+  ],
+  "web_accessible_resources": ["getjson.js"],
+  "permissions": [
+    "nativeMessaging",
+    "geckoViewAddons",
+    "*://abetterrouteplanner.com/*"
+  ]
+}

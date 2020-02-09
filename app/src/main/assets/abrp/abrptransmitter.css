@@ -1,0 +1,37 @@
+.wpinput {
+  height: 48px;
+}
+
+.wpdropbutton {
+  height: 34px;
+}
+
+img.wpbutton {
+  height: 36px;
+}
+
+.viacontainer {
+  padding-right: 20px;
+}
+
+.actionbutton {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+#geo-share-btn {
+  height: 32px;
+  line-height: 32px;
+}
+
+.linktable tr td :not(a) {
+ display: none;
+}
+
+.labelplanlinks {
+  display: none;
+}
+
+.abouttext {
+  display: none;
+}

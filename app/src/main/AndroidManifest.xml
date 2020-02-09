@@ -17,6 +17,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
+            android:launchMode="singleInstance"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,9 +50,6 @@
 
         <service
             android:name=".service.AbrpTransmitterService"
-            android:exported="false" />
-        <service
-            android:name=".service.CompanionExchangerService"
             android:exported="false" />
     </application>
 

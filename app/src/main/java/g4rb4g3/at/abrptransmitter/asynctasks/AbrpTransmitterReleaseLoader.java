@@ -72,7 +72,6 @@ public class AbrpTransmitterReleaseLoader extends AsyncTask<String, String, Stri
 
           InputStream stream = connection.getInputStream();
 
-          //File outDir = mContext.getExternalFilesDir(null);
           File outFile = new File("/sdcard", ABRPTRANSMITTER_APK_NAME);
           FileOutputStream fileOutputStream = new FileOutputStream(outFile);
           byte[] buffer = new byte[1024];
@@ -86,13 +85,7 @@ public class AbrpTransmitterReleaseLoader extends AsyncTask<String, String, Stri
           return outFile.getAbsolutePath();
         }
       }
-    } catch (IOException e) {
-      sLog.error(e.getMessage(), e);
-      error = e.getLocalizedMessage();
-    } catch (NoSuchAlgorithmException e) {
-      sLog.error(e.getMessage(), e);
-      error = e.getLocalizedMessage();
-    } catch (KeyManagementException e) {
+    } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
       sLog.error(e.getMessage(), e);
       error = e.getLocalizedMessage();
     } finally {
