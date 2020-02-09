@@ -7,9 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 
 import androidx.annotation.NonNull;
@@ -20,7 +17,6 @@ import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.asynctasks.LogFileLoader;
 
 public class LogFragment extends Fragment implements LogFileLoader.ILogFileLoader {
-  private static final Logger sLog = LoggerFactory.getLogger(LogFragment.class.getSimpleName());
   private FileObserver mFileObserver = null;
   private TextView mTvLog;
 

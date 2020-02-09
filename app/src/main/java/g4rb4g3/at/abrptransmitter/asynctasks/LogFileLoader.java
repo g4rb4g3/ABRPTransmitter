@@ -22,7 +22,7 @@ public class LogFileLoader extends AsyncTask<String, String, String> {
     try {
       return readFromLast(new File(strings[0]), 100);
     } catch (IOException e) {
-      sLog.error("", e);
+      sLog.error("error reading log file", e);
     }
     return null;
   }

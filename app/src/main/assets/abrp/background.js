@@ -25,12 +25,12 @@ port.onMessage.addListener(response => {
       });
     }
   } catch (e) {
-    port.postMessage(e);
+    onError(e);
   }
 });
 
 function onError(error) {
-  console.log(error);
+  //console.log(error);
   port.postMessage(error);
 }
 

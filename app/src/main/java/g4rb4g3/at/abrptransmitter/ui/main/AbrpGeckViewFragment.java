@@ -10,7 +10,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,7 +58,6 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
-import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_LAST_UPDATE_SENT;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_TELEMETRY_UPDATED;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
@@ -88,12 +86,12 @@ public class AbrpGeckViewFragment extends Fragment {
   private Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override
     public void handleMessage(final Message msg) {
-      if(mWebExtensionPort == null) {
+      if (mWebExtensionPort == null) {
         return;
       }
 
-      if(msg.what == MESSAGE_TELEMETRY_UPDATED) {
-        JSONObject tlm = (JSONObject)msg.obj;
+      if (msg.what == MESSAGE_TELEMETRY_UPDATED) {
+        JSONObject tlm = (JSONObject) msg.obj;
         mWebExtensionPort.postMessage(tlm);
       }
     }
@@ -325,7 +323,7 @@ public class AbrpGeckViewFragment extends Fragment {
 
         getActivity().runOnUiThread(() -> mBtnGetAbrpToken.setVisibility(View.GONE));
       } catch (IOException | JSONException | NoSuchAlgorithmException | KeyManagementException e) {
-        sLog.error("error getting token", e);
+        sLog.error("error receiving token from abrp website", e);
       } finally {
         mGeckoSession.loadUri(getAbrpUrl());
       }
@@ -333,7 +331,7 @@ public class AbrpGeckViewFragment extends Fragment {
   }
 
   private void registerWebExtension() {
-    if(mWebExtensionPort != null) {
+    if (mWebExtensionPort != null) {
       return;
     }
 
@@ -345,7 +343,7 @@ public class AbrpGeckViewFragment extends Fragment {
         mWebExtensionPort.setDelegate(new WebExtension.PortDelegate() {
           @Override
           public void onPortMessage(@NonNull Object message, @NonNull WebExtension.Port port) {
-            sLog.info("Received message from WebExtension: " + message);
+            sLog.error("Received error message from WebExtension: " + message);
           }
 
           @NonNull
@@ -365,7 +363,7 @@ public class AbrpGeckViewFragment extends Fragment {
     WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING);
     extension.setMessageDelegate(messageDelegate, "browser");
     mGeckoRuntime.registerWebExtension(extension).exceptionally(exception -> {
-      sLog.error("", exception);
+      sLog.error("error registering web extension", exception);
       return null;
     });
   }

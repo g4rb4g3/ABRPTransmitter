@@ -253,7 +253,7 @@ public class AbrpTransmitterService extends Service {
     @Override
     public void run() {
       try {
-        sLog.info("AbrpUpdater, updating telemetry object");
+        sLog.debug("AbrpUpdater, updating telemetry object");
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
@@ -261,7 +261,7 @@ public class AbrpTransmitterService extends Service {
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT, mHvacManager.getAmbientTemperatureC());
 
-        sLog.info("AbrpUpdater, notify handlers about updated telemetry object");
+        sLog.debug("AbrpUpdater, notify handlers about updated telemetry object");
         notifyHandlers(MESSAGE_TELEMETRY_UPDATED, mJTlmObj);
 
         if (!mWifiConnected) {
@@ -278,11 +278,11 @@ public class AbrpTransmitterService extends Service {
         if (token == null || token.length() == 0) {
           String msg = getString(R.string.token_missing);
           notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, msg);
-          sLog.error(msg);
+          sLog.warn(msg);
           return;
         }
 
-        sLog.info("AbrpUpdater, preparing url for telemetry update");
+        sLog.debug("AbrpUpdater, preparing url for telemetry update");
         StringBuilder url = new StringBuilder(ABETTERROUTEPLANNER_API_URL)
             .append(ABETTERROUTEPLANNER_URL_TOKEN).append("=").append(token)
             .append("&").append(ABETTERROUTEPLANNER_URL_API_KEY).append("=").append(ABETTERROUTEPLANNER_API_KEY)
@@ -294,7 +294,7 @@ public class AbrpTransmitterService extends Service {
           return;
         }
 
-        sLog.info("AbrpUpdater, calling url for telemetry update");
+        sLog.debug("AbrpUpdater, calling url for telemetry update");
         sendUpdate(url.toString());
       } catch (Exception e) {
         if (e instanceof SocketTimeoutException || e instanceof UnknownHostException || e instanceof ConnectException) {
@@ -304,8 +304,8 @@ public class AbrpTransmitterService extends Service {
         }
         notifyHandlers(MESSAGE_LAST_ERROR_ABRPSERVICE, e.getLocalizedMessage());
       } finally {
-        sLog.info("AbrpUpdater finished");
-        sLog.info(mScheduledExecutorService.toString());
+        sLog.debug("AbrpUpdater finished");
+        sLog.debug(mScheduledExecutorService.toString());
       }
     }
 

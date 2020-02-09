@@ -22,7 +22,6 @@ import g4rb4g3.at.abrptransmitter.Utils;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_CONNECTIVITY_CHANGED;
 
 public class ConnectivityChangeReceiver extends BroadcastReceiver {
-  private static final Logger sLog = LoggerFactory.getLogger(ConnectivityChangeReceiver.class.getSimpleName());
   private Handler mHandler;
 
   public ConnectivityChangeReceiver(@NonNull Handler handler) {

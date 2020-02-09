@@ -9,7 +9,6 @@ import android.widget.TextClock;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.viewpager.widget.ViewPager;
 import g4rb4g3.at.abrptransmitter.ui.main.AbrpGeckViewFragment;
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 import g4rb4g3.at.abrptransmitter.ui.main.SwitchableSwipeViewPager;

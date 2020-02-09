@@ -38,7 +38,6 @@ import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener, AbrpTransmitterReleaseLoader.IAbrpTransmitterReleaseLoader {
-  private static final Logger sLog = LoggerFactory.getLogger(AbrpTransmitterService.class.getSimpleName());
   private TextView mTvToken;
   private Button mBtSave;
   private Button mBtLoadReleases;
