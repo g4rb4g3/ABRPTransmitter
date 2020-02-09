@@ -3,10 +3,6 @@ package g4rb4g3.at.abrptransmitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -41,20 +37,7 @@ public class Utils {
     }
     return Collections.unmodifiableList(ips);
   }
-
-  public static String getCurrentLogs(MainApplication mainApplication) throws IOException {
-    StringBuilder sb = new StringBuilder();
-    File logFile = mainApplication.getCurrentLogFile();
-    if (logFile.exists() && logFile.length() > 0) {
-      BufferedReader bufferedReader = new BufferedReader(new FileReader(logFile));
-      String line;
-      while ((line = bufferedReader.readLine()) != null) {
-        sb.append(line).append('\n');
-      }
-    }
-    return sb.toString();
-  }
-
+  
   public static String getTimestamp() {
     return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date());
   }
