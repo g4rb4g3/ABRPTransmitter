@@ -360,7 +360,7 @@ public class AbrpGeckViewFragment extends Fragment {
       }
     };
 
-    WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING);
+    WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING, mGeckoRuntime.getWebExtensionController());
     extension.setMessageDelegate(messageDelegate, "browser");
     mGeckoRuntime.registerWebExtension(extension).exceptionally(exception -> {
       sLog.error("error registering web extension", exception);
