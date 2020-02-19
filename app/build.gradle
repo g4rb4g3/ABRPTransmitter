@@ -12,7 +12,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 17
         versionCode 1
-        versionName "3.1.3"
+        versionName "3.1.4"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a'
@@ -50,33 +50,27 @@ dependencies {
 }
 
 //https://vincent.bernat.ch/en/blog/2016-android-build-time-patch
-//patch geckoview classes so they work out on the ioniq, TODO: check on geckoview update!
-import com.android.build.api.transform.Context
-import com.android.build.api.transform.QualifiedContent
-import com.android.build.api.transform.Transform
-import com.android.build.api.transform.TransformException
-import com.android.build.api.transform.TransformInput
-import com.android.build.api.transform.TransformOutputProvider
+//patch geckoview classes so keyboard doesn't open up in full screen mode, TODO: check on geckoview update!
+import com.android.build.api.transform.*
 import javassist.ClassPool
 import javassist.CtNewMethod
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.IOUtils
+
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
-import org.apache.commons.io.IOUtils
-import com.android.build.api.transform.Status
-import org.apache.commons.io.FileUtils
-import com.android.build.api.transform.Format
 
-class PatchGeckoEditable extends Transform {
+class ModifyGeckoView extends Transform {
     Logger logger = null
 
-    public PatchGeckoEditable(Logger logger) {
+    public ModifyGeckoView(Logger logger) {
         this.logger = logger;
     }
 
     @Override
     String getName() {
-        return "PatchGeckoEditable"
+        return "ModifyGeckoView"
     }
 
     @Override
@@ -114,85 +108,40 @@ class PatchGeckoEditable extends Transform {
                         def pool = new ClassPool()
                         pool.insertClassPath(System.getenv("ANDROID_HOME") + "\\platforms\\android-28\\android.jar")
                         pool.insertClassPath("${src}")
-                        def ctc = pool.get('org.mozilla.geckoview.GeckoEditable')
-
-                        def ctm = ctc.getDeclaredMethod('shouldProcessKey')
-                        ctc.removeMethod(ctm)
-                        pool.importPackage("android.view.KeyEvent")
-                        ctc.addMethod(CtNewMethod.make("""
-private static boolean shouldProcessKey(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_MENU:
-                return false;
-            case KeyEvent.KEYCODE_BACK:
-                return false;
-            case KeyEvent.KEYCODE_VOLUME_UP:
-                return false;
-            case KeyEvent.KEYCODE_VOLUME_DOWN:
-                return false;
-            case KeyEvent.KEYCODE_SEARCH:
-                return false;
-            case KeyEvent.KEYCODE_HEADSETHOOK:
-                return false;
-            case 302: //IviKeyEvent.KEYCODE_TUNE_PRESS
-                return false;
-            case 303: //IviKeyEvent.KEYCODE_TUNE_UP
-                return false;
-            case 304: //IviKeyEvent.KEYCODE_TUNE_DOWN
-                return false;
-            case 308: //IviKeyEvent.KEYCODE_TRACK_SEEK_UP
-                return false;
-            case 309: //IviKeyEvent.KEYCODE_TRACK_SEEK_DOWN
-                return false;
-            case 313: //IviKeyEvent.KEYCODE_SEEK_UP
-                return false;
-            case 314: //IviKeyEvent.KEYCODE_SEEK_DOWN
-                return false;
-        }
-        return true;
-    }
-""", ctc))
-
-                        def ctc1 = pool.get('org.mozilla.geckoview.GeckoInputConnection')
-                        def ctm1 = ctc1.getDeclaredMethod("onCreateInputConnection")
-                        ctc1.removeMethod(ctm1)
                         pool.importPackage("android.view.inputmethod.InputConnection")
                         pool.importPackage("android.view.inputmethod.EditorInfo")
-                        pool.importPackage("android.content.Context")
-                        ctc1.addMethod(CtNewMethod.make("""
-public synchronized InputConnection onCreateInputConnection(EditorInfo var1) {
+
+                        def ctc = pool.get('org.mozilla.geckoview.GeckoInputConnection')
+                        def ctm = ctc.getDeclaredMethod("onCreateInputConnection")
+                        ctc.removeMethod(ctm)
+                        ctc.addMethod(CtNewMethod.make("""
+public synchronized InputConnection onCreateInputConnection(EditorInfo outAttrs) {
     if (this.mIMEState == 0) {
       return null;
     } else {
-      Context var2 = this.getView().getContext();
-      var1.imeOptions |= EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN;
+      outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN;
       
       this.mCurrentInputMethod = "default_input_method";
-      var1.initialSelStart = this.mLastSelectionStart;
-      var1.initialSelEnd = this.mLastSelectionEnd;
+      outAttrs.initialSelStart = this.mLastSelectionStart;
+      outAttrs.initialSelEnd = this.mLastSelectionEnd;
       return this;
     }
   }
-""", ctc1))
-
-
+""", ctc))
                         // Write back the JAR file
                         def input = new JarFile(src)
                         def output = new JarOutputStream(new FileOutputStream(dest))
 
                         input.entries().each {
-                            if (!it.getName().equals("org/mozilla/geckoview/GeckoEditable.class") && !it.getName().equals("org/mozilla/geckoview/GeckoInputConnection.class")) {
+                            if (it.getName() != "org/mozilla/geckoview/GeckoInputConnection.class") {
                                 def s = input.getInputStream(it)
                                 output.putNextEntry(new JarEntry(it.getName()))
                                 IOUtils.copy(s, output)
                                 s.close()
                             }
                         }
-                        output.putNextEntry(new JarEntry("org/mozilla/geckoview/GeckoEditable.class"))
-                        output.write(ctc.toBytecode())
-
                         output.putNextEntry(new JarEntry("org/mozilla/geckoview/GeckoInputConnection.class"))
-                        output.write(ctc1.toBytecode())
+                        output.write(ctc.toBytecode())
 
                         output.close()
                     } else {
@@ -205,4 +154,4 @@ public synchronized InputConnection onCreateInputConnection(EditorInfo var1) {
     }
 }
 
-android.registerTransform(new PatchGeckoEditable(logger))
+android.registerTransform(new ModifyGeckoView(logger))
