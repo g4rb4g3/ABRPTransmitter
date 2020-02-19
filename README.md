@@ -12,6 +12,8 @@ Brings full featured www.abetterrouteplanner.com to your Hyundai Ioniq (28 kWh).
 * Open ABRP Transmitter and log in to www.abetterrouteplanner.com using the key button.<br />
 * Go to Settings and enable "Transmit data".<br />
 
+**See [wiki](https://github.com/g4rb4g3/ABRPTransmitter/wiki) for more details**
+
 ![Screenshot](doc/screenshot.png)
 
 If you like my work I'd be happy if you buy me a coffee. Thanks!<br  />
