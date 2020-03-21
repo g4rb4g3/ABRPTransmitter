@@ -26,6 +26,7 @@ public class Constants {
   public static final String ABETTERROUTEPLANNER_JSON_GPS_ELEVATION = "elevation";     //m
   public static final String ABETTERROUTEPLANNER_JSON_GPS_LON = "lon";                 //deg
   public static final String ABETTERROUTEPLANNER_JSON_GPS_LAT = "lat";                 //deg
+  public static final String ABETTERROUTEPLANNER_JSON_GPS_HEADING = "heading";         //°
   public static final String ABETTERROUTEPLANNER_JSON_TEMPERATURE_EXT = "ext_temp";    //C
   public static final String ABETTERROUTEPLANNER_JSON_TEMPERATURE_BATT = "batt_temp";  //C
   public static final String ABETTERROUTEPLANNER_JSON_CHARGING = "is_charging";        //0 driving, 1 charging
@@ -37,6 +38,7 @@ public class Constants {
   public static final String EXTRA_LAT = "com.hkmc.telematics.gis.extra.LAT";
   public static final String EXTRA_LON = "com.hkmc.telematics.gis.extra.LON";
   public static final String EXTRA_ALT = "com.hkmc.telematics.gis.extra.ALT";
+  public static final String EXTRA_HEADING = "com.hkmc.telematics.gis.extra.HEADING";
 
   public static final long INTERVAL_SEND_UPDATE = 5000L;
   public static final long INTERVAL_AVERAGE_COLLECTOR = 500L;
