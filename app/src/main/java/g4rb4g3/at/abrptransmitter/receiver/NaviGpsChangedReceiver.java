@@ -17,7 +17,7 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
     double lat = intent.getDoubleExtra(EXTRA_LAT, 0);
     double lon = intent.getDoubleExtra(EXTRA_LON, 0);
     double alt = intent.getDoubleExtra(EXTRA_ALT, 0);
-    double heading = intent.getIntExtra(EXTRA_HEADING, 0);
+    int heading = intent.getIntExtra(EXTRA_HEADING, 0);
 
     Intent serviceIntent = new Intent(context, AbrpTransmitterService.class);
     serviceIntent.putExtra(EXTRA_LAT, lat);

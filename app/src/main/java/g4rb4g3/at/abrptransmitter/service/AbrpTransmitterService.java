@@ -153,7 +153,7 @@ public class AbrpTransmitterService extends Service {
       double lat = intent.getDoubleExtra(EXTRA_LAT, 0.0);
       double lon = intent.getDoubleExtra(EXTRA_LON, 0.0);
       double alt = intent.getDoubleExtra(EXTRA_ALT, 0.0);
-      double heading = intent.getIntExtra(EXTRA_HEADING, 0);
+      int heading = intent.getIntExtra(EXTRA_HEADING, 0);
 
       if (lat != 0.0 && lon != 0.0) {
         try {
