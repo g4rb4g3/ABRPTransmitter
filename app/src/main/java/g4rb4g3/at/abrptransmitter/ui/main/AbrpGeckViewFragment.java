@@ -57,11 +57,10 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_REDI
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
-import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.MESSAGE_TELEMETRY_UPDATED;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
-import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 
 /**
@@ -291,12 +290,7 @@ public class AbrpGeckViewFragment extends Fragment {
   }
 
   private String getAbrpUrl() {
-    boolean nomap = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getBoolean(PREFERENCES_NOMAP, false);
-    String url = ABETTERROUTEPLANNER_URL;
-    if (nomap) {
-      url += ABETTERROUTEPLANNER_URL_NOMAP;
-    }
-    return url;
+    return getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE).getString(PREFERENCES_ABRP_URL, ABETTERROUTEPLANNER_URL);
   }
 
   private void loadToken(String authCode) {

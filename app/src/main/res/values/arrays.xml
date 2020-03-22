@@ -6,4 +6,9 @@
         <item>Info</item>
         <item>Debug</item>
     </string-array>
+    <string-array name="urls">
+        <item>new</item>
+        <item>classic</item>
+        <item>classic no-map</item>
+    </string-array>
 </resources>

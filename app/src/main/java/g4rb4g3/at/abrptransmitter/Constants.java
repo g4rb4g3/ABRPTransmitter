@@ -5,7 +5,8 @@ import java.net.URLEncoder;
 public class Constants {
 
   public static final String ABETTERROUTEPLANNER_URL = "https://abetterrouteplanner.com/";
-  public static final String ABETTERROUTEPLANNER_URL_NOMAP = "?nomap=1";
+  public static final String ABETTERROUTEPLANNER_URL_CLASSIC = "classic";
+  public static final String ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP = "?nomap=1";
 
   public static final String ABETTERROUTEPLANNER_AUTH_URL = "https://abetterrouteplanner.com/oauth/auth?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&response_type=code&redirect_uri=" + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&scope=send_telemetry";
   public static final String ABETTERROUTEPLANNER_AUTH_AUTH_CODE = "code";
@@ -50,6 +51,7 @@ public class Constants {
   public static final String PREFERENCES_APPLY_CSS = "applyCss";
   public static final String PREFERENCES_DISABLE_TAB_SWIPE = "disableTabSwipe";
   public static final String PREFERENCES_LOG_LEVEL = "logLevel";
+  public static final String PREFERENCES_ABRP_URL = "abrpUrl";
 
   public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
   public static final int MESSAGE_LAST_UPDATE_SENT = 2;

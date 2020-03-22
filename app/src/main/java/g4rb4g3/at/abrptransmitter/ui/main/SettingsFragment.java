@@ -17,9 +17,6 @@ import android.widget.Toast;
 
 import com.lge.ivi.media.ExtMediaManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.LinkedHashMap;
 
 import androidx.fragment.app.Fragment;
@@ -27,15 +24,17 @@ import g4rb4g3.at.abrptransmitter.MainApplication;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.asynctasks.AbrpTransmitterReleaseLoader;
-import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_DISABLE_TAB_SWIPE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_LOG_LEVEL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
-import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NOMAP;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
@@ -44,11 +43,11 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
   private Button mBtSave;
   private Button mBtLoadReleases;
   private CheckBox mCbTransmitData;
-  private CheckBox mCbNoMap;
   private CheckBox mCbApplyCss;
   private CheckBox mCbDisableTabSwipe;
   private Spinner mSpReleases;
   private Spinner mSpLogLevel;
+  private Spinner mSpAbrpUrl;
   private SharedPreferences mSharedPreferences;
   private LinkedHashMap<String, String> mReleases = new LinkedHashMap<>();
   private ProgressDialog mProgressDialog;
@@ -80,17 +79,16 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mBtLoadReleases = view.findViewById(R.id.btn_load_releases);
     mTvToken = view.findViewById(R.id.tv_abrp_token);
     mCbTransmitData = view.findViewById(R.id.cb_transmit);
-    mCbNoMap = view.findViewById(R.id.cb_nomap);
     mCbApplyCss = view.findViewById(R.id.cb_apply_css);
     mCbDisableTabSwipe = view.findViewById(R.id.cb_disable_tab_swipe);
     mSpReleases = view.findViewById(R.id.sp_releases);
     mSpLogLevel = view.findViewById(R.id.sp_log_level);
+    mSpAbrpUrl = view.findViewById(R.id.sp_abrp_url);
 
     mBtSave.setOnClickListener(this);
     mBtLoadReleases.setOnClickListener(this);
 
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
-    mCbNoMap.setChecked(mSharedPreferences.getBoolean(PREFERENCES_NOMAP, false));
     mCbApplyCss.setChecked(mSharedPreferences.getBoolean(PREFERENCES_APPLY_CSS, false));
     mCbDisableTabSwipe.setChecked(mSharedPreferences.getBoolean(PREFERENCES_DISABLE_TAB_SWIPE, false));
     return view;
@@ -114,16 +112,26 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
         SharedPreferences.Editor sped = mSharedPreferences.edit();
         sped.putString(PREFERENCES_TOKEN, mTvToken.getText().toString());
         sped.putBoolean(PREFERENCES_TRANSMIT_DATA, mCbTransmitData.isChecked());
-        sped.putBoolean(PREFERENCES_NOMAP, mCbNoMap.isChecked());
         sped.putBoolean(PREFERENCES_APPLY_CSS, mCbApplyCss.isChecked());
         sped.putBoolean(PREFERENCES_DISABLE_TAB_SWIPE, mCbDisableTabSwipe.isChecked());
         sped.putString(PREFERENCES_LOG_LEVEL, mSpLogLevel.getSelectedItem().toString().toLowerCase());
+        switch (mSpAbrpUrl.getSelectedItem().toString()) {
+          case "new":
+            sped.putString(PREFERENCES_ABRP_URL, ABETTERROUTEPLANNER_URL);
+            break;
+          case "classic":
+            sped.putString(PREFERENCES_ABRP_URL, ABETTERROUTEPLANNER_URL + ABETTERROUTEPLANNER_URL_CLASSIC);
+            break;
+          case "classic no-map":
+            sped.putString(PREFERENCES_ABRP_URL, ABETTERROUTEPLANNER_URL + ABETTERROUTEPLANNER_URL_CLASSIC + ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP);
+            break;
+        }
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();
 
         SwitchableSwipeViewPager.getInstance().setPagingEnabled(!mCbDisableTabSwipe.isChecked());
-        ((MainApplication)getActivity().getApplication()).setLogLevel();
+        ((MainApplication) getActivity().getApplication()).setLogLevel();
         break;
       case R.id.btn_load_releases:
         if (Utils.getIPAddresses().size() == 0) {

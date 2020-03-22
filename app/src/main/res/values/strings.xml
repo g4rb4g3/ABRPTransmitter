@@ -24,8 +24,8 @@
     <string name="please_wait_downloading">Please wait, downloading</string>
     <string name="choose_release_first">Choose a release first</string>
     <string name="installing">Starting installing, please restart app in about 30 seconds.</string>
-    <string name="load_abrp_with_no_map_mode">Load ABRP with no map mode</string>
-    <string name="increase_abrp_buttons">Increase ABRP buttons size</string>
+    <string name="increase_abrp_buttons">Increase classic ABRP buttons size</string>
     <string name="log_level">Log level:</string>
     <string name="disable_tab_swipe">Disable tab swipe</string>
+    <string name="abrp_url">ABRP Url:</string>
 </resources>

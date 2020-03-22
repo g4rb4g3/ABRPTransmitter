@@ -97,22 +97,14 @@
         app:layout_constraintTop_toTopOf="@+id/tv_release" />
 
     <CheckBox
-        android:id="@+id/cb_nomap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:text="@string/load_abrp_with_no_map_mode"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/cb_transmit" />
-
-    <CheckBox
         android:id="@+id/cb_apply_css"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="@string/increase_abrp_buttons"
-        app:layout_constraintStart_toStartOf="@+id/cb_nomap"
-        app:layout_constraintTop_toBottomOf="@+id/cb_nomap" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sp_abrp_url" />
 
     <CheckBox
         android:id="@+id/cb_disable_tab_swipe"
@@ -145,5 +137,26 @@
         android:text="@string/log_level"
         app:layout_constraintBottom_toBottomOf="@+id/sp_log_level"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_abrp_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:text="@string/abrp_url"
+        app:layout_constraintBottom_toBottomOf="@+id/sp_abrp_url"
+        app:layout_constraintStart_toStartOf="@+id/cb_apply_css" />
+
+    <Spinner
+        android:id="@+id/sp_abrp_url"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:entries="@array/urls"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_abrp_url"
+        app:layout_constraintTop_toBottomOf="@+id/tv_abrp_token" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
