@@ -59,6 +59,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CAR_
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CAR_MODEL_IONIQ28;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_CHARGING;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_GPS_ELEVATION;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_GPS_HEADING;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_GPS_LAT;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_GPS_LON;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_JSON_POWER;
@@ -72,6 +73,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_API_K
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TELEMETRY;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_ALT;
+import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_HEADING;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LAT;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
 import static g4rb4g3.at.abrptransmitter.Constants.INTERVAL_AVERAGE_COLLECTOR;
@@ -135,6 +137,7 @@ public class AbrpTransmitterService extends Service {
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, 0.0);
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, 0.0);
       mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, 0.0);
+      mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_HEADING, 0);
     } catch (JSONException e) {
       sLog.error("error building json object", e);
     }
@@ -150,12 +153,14 @@ public class AbrpTransmitterService extends Service {
       double lat = intent.getDoubleExtra(EXTRA_LAT, 0.0);
       double lon = intent.getDoubleExtra(EXTRA_LON, 0.0);
       double alt = intent.getDoubleExtra(EXTRA_ALT, 0.0);
+      int heading = intent.getIntExtra(EXTRA_HEADING, 0);
 
       if (lat != 0.0 && lon != 0.0) {
         try {
           mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LAT, lat);
           mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_LON, lon);
           mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_ELEVATION, alt);
+          mJTlmObj.put(ABETTERROUTEPLANNER_JSON_GPS_HEADING, heading);
         } catch (JSONException e) {
           sLog.error("error updating json object with gps data", e);
         }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_ALT;
+import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_HEADING;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LAT;
 import static g4rb4g3.at.abrptransmitter.Constants.EXTRA_LON;
 
@@ -16,11 +17,13 @@ public class NaviGpsChangedReceiver extends BroadcastReceiver {
     double lat = intent.getDoubleExtra(EXTRA_LAT, 0);
     double lon = intent.getDoubleExtra(EXTRA_LON, 0);
     double alt = intent.getDoubleExtra(EXTRA_ALT, 0);
+    int heading = intent.getIntExtra(EXTRA_HEADING, 0);
 
     Intent serviceIntent = new Intent(context, AbrpTransmitterService.class);
     serviceIntent.putExtra(EXTRA_LAT, lat);
     serviceIntent.putExtra(EXTRA_LON, lon);
     serviceIntent.putExtra(EXTRA_ALT, alt);
+    serviceIntent.putExtra(EXTRA_HEADING, heading);
     context.startService(serviceIntent);
   }
 }
