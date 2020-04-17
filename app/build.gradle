@@ -12,7 +12,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 17
         versionCode 1
-        versionName "3.1.5"
+        versionName "3.1.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a'
