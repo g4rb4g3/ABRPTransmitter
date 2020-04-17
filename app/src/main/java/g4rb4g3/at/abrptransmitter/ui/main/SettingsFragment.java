@@ -31,9 +31,11 @@ import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASS
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL_INDEX;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_DISABLE_TAB_SWIPE;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_LOG_LEVEL;
+import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_LOG_LEVEL_INDEX;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
@@ -91,6 +93,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     mCbTransmitData.setChecked(mSharedPreferences.getBoolean(PREFERENCES_TRANSMIT_DATA, false));
     mCbApplyCss.setChecked(mSharedPreferences.getBoolean(PREFERENCES_APPLY_CSS, false));
     mCbDisableTabSwipe.setChecked(mSharedPreferences.getBoolean(PREFERENCES_DISABLE_TAB_SWIPE, false));
+    mSpLogLevel.setSelection(mSharedPreferences.getInt(PREFERENCES_LOG_LEVEL_INDEX, 0));
+    mSpAbrpUrl.setSelection(mSharedPreferences.getInt(PREFERENCES_ABRP_URL_INDEX, 0));
     return view;
   }
 
@@ -126,6 +130,8 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
             sped.putString(PREFERENCES_ABRP_URL, ABETTERROUTEPLANNER_URL + ABETTERROUTEPLANNER_URL_CLASSIC + ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP);
             break;
         }
+        sped.putInt(PREFERENCES_LOG_LEVEL_INDEX, mSpLogLevel.getSelectedItemPosition());
+        sped.putInt(PREFERENCES_ABRP_URL_INDEX, mSpAbrpUrl.getSelectedItemPosition());
         sped.commit();
 
         Toast.makeText(getContext(), getText(R.string.saved), Toast.LENGTH_LONG).show();

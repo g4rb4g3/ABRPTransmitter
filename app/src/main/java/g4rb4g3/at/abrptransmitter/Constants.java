@@ -47,11 +47,12 @@ public class Constants {
   public static final String PREFERENCES_NAME = "preferences";
   public static final String PREFERENCES_TOKEN = "abrp_token";
   public static final String PREFERENCES_TRANSMIT_DATA = "transmit_data";
-  public static final String PREFERENCES_NOMAP = "nomap";
   public static final String PREFERENCES_APPLY_CSS = "applyCss";
   public static final String PREFERENCES_DISABLE_TAB_SWIPE = "disableTabSwipe";
   public static final String PREFERENCES_LOG_LEVEL = "logLevel";
   public static final String PREFERENCES_ABRP_URL = "abrpUrl";
+  public static final String PREFERENCES_LOG_LEVEL_INDEX = "logLevelIndex";
+  public static final String PREFERENCES_ABRP_URL_INDEX = "abrpUrlIndex";
 
   public static final int MESSAGE_CONNECTIVITY_CHANGED = 1;
   public static final int MESSAGE_LAST_UPDATE_SENT = 2;
