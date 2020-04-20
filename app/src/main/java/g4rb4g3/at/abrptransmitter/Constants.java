@@ -8,7 +8,7 @@ public class Constants {
   public static final String ABETTERROUTEPLANNER_URL_CLASSIC = "classic";
   public static final String ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP = "?nomap=1";
 
-  public static final String ABETTERROUTEPLANNER_AUTH_URL = "https://web.abetterrouteplanner.com/oauth/auth?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&response_type=code&redirect_uri=" + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&scope=send_telemetry";
+  public static final String ABETTERROUTEPLANNER_AUTH_URL = "https://web.abetterrouteplanner.com/oauth/auth?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&response_type=code&redirect_uri=" + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&scope=set_telemetry";
   public static final String ABETTERROUTEPLANNER_AUTH_AUTH_CODE = "code";
   public static final String ABETTERROUTEPLANNER_AUTH_ACCESS_TOKEN = "access_token";
   public static final String ABETTERROUTEPLANNER_AUTH_URL_GET_TOKEN = "https://web.abetterrouteplanner.com/oauth/token?client_id=" + ABETTERROUTEPLANNER_CLIENTID + "&client_secret=" + ABETTERROUTEPLANNER_API_KEY + "&redirect_uri="  + URLEncoder.encode(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI) + "&code=";
