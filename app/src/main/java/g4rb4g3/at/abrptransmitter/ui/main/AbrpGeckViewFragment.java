@@ -162,6 +162,7 @@ public class AbrpGeckViewFragment extends Fragment {
     if (mGeckoSession == null || !mGeckoSession.isOpen()) {
       if (mGeckoSession == null) {
         mGeckoSession = new GeckoSession();
+        mGeckoSession.setPermissionDelegate(new GeckoPermissionDelegate());
         mGeckoSession.setNavigationDelegate(new GeckoSession.NavigationDelegate() {
           @Nullable
           @Override
@@ -375,6 +376,22 @@ public class AbrpGeckViewFragment extends Fragment {
         sLog.error("error building setCss json", ex);
       }
       mWebExtensionPort.postMessage(message);
+    }
+  }
+
+  private class GeckoPermissionDelegate implements GeckoSession.PermissionDelegate {
+    @Override
+    public void onContentPermissionRequest(final GeckoSession session,
+                                           final String uri,
+                                           final int type, final Callback callback) {
+      switch (type) {
+        case PERMISSION_GEOLOCATION:
+          callback.reject();
+          break;
+        default:
+          callback.grant();
+          break;
+      }
     }
   }
 }
