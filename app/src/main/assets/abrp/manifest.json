@@ -9,7 +9,7 @@
   "content_scripts": [
     {
       "run_at": "document_end",
-      "matches": ["*://abetterrouteplanner.com/*"],
+      "matches": ["*://abetterrouteplanner.com/classic/*"],
       "js": ["abrp.js"]
     }
   ],
@@ -17,6 +17,6 @@
   "permissions": [
     "nativeMessaging",
     "geckoViewAddons",
-    "*://abetterrouteplanner.com/*"
+    "*://abetterrouteplanner.com/classic/*"
   ]
 }
