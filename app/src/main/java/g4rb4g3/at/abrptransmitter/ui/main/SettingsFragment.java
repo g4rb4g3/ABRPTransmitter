@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.lge.ivi.media.ExtMediaManager;
+import com.lge.ivi.server.ExtMediaService;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 
@@ -24,10 +28,12 @@ import g4rb4g3.at.abrptransmitter.MainApplication;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.asynctasks.AbrpTransmitterReleaseLoader;
+import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP;
+import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_RN_DEVEL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
@@ -41,6 +47,8 @@ import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TRANSMIT_DATA;
 
 public class SettingsFragment extends Fragment implements View.OnClickListener, AbrpTransmitterReleaseLoader.IAbrpTransmitterReleaseLoader {
+  private static final Logger sLog = LoggerFactory.getLogger(AbrpTransmitterService.class.getSimpleName());
+
   private TextView mTvToken;
   private Button mBtSave;
   private Button mBtLoadReleases;
@@ -175,8 +183,14 @@ public class SettingsFragment extends Fragment implements View.OnClickListener, 
     new Handler().postDelayed(new Runnable() {
       @Override
       public void run() {
-        ExtMediaManager extMediaManager = ExtMediaManager.getInstance(getContext());
-        extMediaManager.excute("pm install -r /sdcard/" + ABRPTRANSMITTER_APK_NAME, null);
+        try {
+          ExtMediaService.getInstance().excute("pm install -r /sdcard/" + ABRPTRANSMITTER_APK_NAME, null);
+        } catch (RemoteException e) {
+          sLog.error(e.getMessage(), e);
+          Toast.makeText(getContext(), R.string.update_error, Toast.LENGTH_LONG).show();
+        } finally {
+          mProgressDialog.dismiss();
+        }
       }
     }, 5000);
   }
