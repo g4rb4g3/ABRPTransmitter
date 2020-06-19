@@ -149,7 +149,7 @@ public class AbrpTransmitterService extends Service {
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
-    if (intent != null) {
+    if (intent != null && intent.hasExtra(EXTRA_LAT)) {
       double lat = intent.getDoubleExtra(EXTRA_LAT, 0.0);
       double lon = intent.getDoubleExtra(EXTRA_LON, 0.0);
       double alt = intent.getDoubleExtra(EXTRA_ALT, 0.0);

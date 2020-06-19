@@ -33,7 +33,6 @@ import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC;
 import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_CLASSIC_PARAM_NOMAP;
-import static g4rb4g3.at.abrptransmitter.Constants.ABETTERROUTEPLANNER_URL_RN_DEVEL;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_APK_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.ABRPTRANSMITTER_RELEASE_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
