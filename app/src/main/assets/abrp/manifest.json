@@ -3,6 +3,11 @@
   "name": "ABRPTransmitter",
   "version": "1.0",
   "description": "Adds support for native messaging to abrp.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "messaging@abrptransmitter.at"
+    }
+  },
   "background": {
     "scripts": ["background.js"]
   },

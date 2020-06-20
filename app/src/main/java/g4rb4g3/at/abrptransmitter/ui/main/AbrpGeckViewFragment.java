@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -355,12 +356,12 @@ public class AbrpGeckViewFragment extends Fragment {
       }
     };
 
-    WebExtension extension = new WebExtension("resource://android/assets/abrp/", "browser", WebExtension.Flags.ALLOW_CONTENT_MESSAGING, mGeckoRuntime.getWebExtensionController());
-    extension.setMessageDelegate(messageDelegate, "browser");
-    mGeckoRuntime.registerWebExtension(extension).exceptionally(exception -> {
-      sLog.error("error registering web extension", exception);
-      return null;
-    });
+    mGeckoRuntime.getWebExtensionController()
+        .installBuiltIn("resource://android/assets/abrp/")
+        .accept(
+            extension -> extension.setMessageDelegate(messageDelegate, "browser"),
+            e -> Log.e("MessageDelegate", "Error registering WebExtension", e)
+        );
   }
 
   private void setCss() {

@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 ext {
-    geckoview_channel = "geckoview"
-    geckoview_version = "77.0.20200603183750"
+    geckoview_channel = "geckoview-beta"
+    geckoview_version = "78.0.20200619002543"
 }
 
 android {
@@ -12,7 +12,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 17
         versionCode 1
-        versionName "3.1.6"
+        versionName "3.1.7"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a'
