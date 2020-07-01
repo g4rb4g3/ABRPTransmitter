@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 ext {
-    geckoview_channel = "geckoview-beta"
-    geckoview_version = "78.0.20200619002543"
+    geckoview_channel = "geckoview"
+    geckoview_version = "78.0.20200630195452"
 }
 
 android {
@@ -46,7 +46,10 @@ dependencies {
     compileOnly fileTree(include: ['*.jar'], dir: 'externallibs')
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation('com.github.bright:slf4android:0.1.6') { transitive = true }
-    implementation "org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}"
+    implementation ("org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}") {
+        exclude module: "snakeyaml" // disable non-compatible yaml library
+    }
+    implementation "org.yaml:snakeyaml:1.26:android" //use updated yaml library compatible with old Android
 }
 
 //https://vincent.bernat.ch/en/blog/2016-android-build-time-patch

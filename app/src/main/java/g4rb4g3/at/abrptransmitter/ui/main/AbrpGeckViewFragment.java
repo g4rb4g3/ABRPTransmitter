@@ -134,8 +134,7 @@ public class AbrpGeckViewFragment extends Fragment {
 
     mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
 
-    GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
-        .configFilePath(""); //required to get rid of  java.lang.VerifyError: org/yaml/snakeyaml/introspector/PropertyUtils https://bugzilla.mozilla.org/show_bug.cgi?id=1567115
+    GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder();
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
 
     registerWebExtension();
