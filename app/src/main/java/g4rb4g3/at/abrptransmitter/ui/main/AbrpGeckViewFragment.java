@@ -47,6 +47,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import g4rb4g3.at.abrptransmitter.R;
 import g4rb4g3.at.abrptransmitter.TLSSocketFactory;
+import g4rb4g3.at.abrptransmitter.Utils;
 import g4rb4g3.at.abrptransmitter.service.AbrpTransmitterService;
 
 import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
@@ -63,6 +64,7 @@ import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_ABRP_URL;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_APPLY_CSS;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_NAME;
 import static g4rb4g3.at.abrptransmitter.Constants.PREFERENCES_TOKEN;
+import static g4rb4g3.at.abrptransmitter.Constants.SYSTEM_PROPERTY_LGE_FW_VERSIOIN;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -113,6 +115,8 @@ public class AbrpGeckViewFragment extends Fragment {
     }
   };
 
+  private String mLgeFirmwareVersion;
+
   public AbrpGeckViewFragment() {
     // Required empty public constructor
   }
@@ -133,6 +137,7 @@ public class AbrpGeckViewFragment extends Fragment {
     super.onCreate(savedInstanceState);
 
     mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+    mLgeFirmwareVersion = Utils.getSystemProperty(SYSTEM_PROPERTY_LGE_FW_VERSIOIN);
 
     GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder();
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
@@ -178,16 +183,23 @@ public class AbrpGeckViewFragment extends Fragment {
                 name = "";
               }
 
-              Intent intent = new Intent();
-              intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
-              intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", lat);
-              intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
-              intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", name);
-              getContext().sendBroadcast(intent);
+              Intent intent1 = new Intent();
+              intent1.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
+              startActivity(intent1);
 
-              intent = new Intent();
-              intent.setComponent(new ComponentName("com.mnsoft.navi", "com.mnsoft.navi.NaviApp"));
-              startActivity(intent);
+              final String finalName = name;
+              new Handler().postDelayed(() -> {
+                Intent intent = new Intent();
+                if("XX.EUR.SOP.00.191209".equals(mLgeFirmwareVersion)) {
+                  intent.setAction("com.hkmc.intent.action.ACTION_SHOW_MAP");
+                } else {
+                  intent.setAction("com.hkmc.intent.action.ACTION_ROUTE_SEARCH");
+                }
+                intent.putExtra("com.hkmc.navi.EXTRA_LATITUDE", lat);
+                intent.putExtra("com.hkmc.navi.EXTRA_LONGITUDE", lon);
+                intent.putExtra("com.hkmc.navi.EXTRA_KEYWORD", finalName);
+                getContext().sendBroadcast(intent);
+              }, 1000);
             } else if (request.uri.startsWith(ABETTERROUTEPLANNER_AUTH_REDIRECT_URI)) {
               if (request.uri.contains(ABETTERROUTEPLANNER_AUTH_AUTH_CODE)) {
                 String authCode = request.uri.substring(request.uri.indexOf(ABETTERROUTEPLANNER_AUTH_AUTH_CODE) + ABETTERROUTEPLANNER_AUTH_AUTH_CODE.length() + 1);

@@ -63,4 +63,6 @@ public class Constants {
 
   public static final String ABRPTRANSMITTER_RELEASE_URL = "https://api.github.com/repos/g4rb4g3/abrptransmitter/releases";
   public static final String ABRPTRANSMITTER_APK_NAME = "app-debug.apk";
+
+  public static final String SYSTEM_PROPERTY_LGE_FW_VERSIOIN = "ro.lge.fw_version";
 }

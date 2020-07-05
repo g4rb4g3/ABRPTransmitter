@@ -3,6 +3,8 @@ package g4rb4g3.at.abrptransmitter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -37,8 +39,21 @@ public class Utils {
     }
     return Collections.unmodifiableList(ips);
   }
-  
+
   public static String getTimestamp() {
     return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(new Date());
+  }
+
+  public static String getSystemProperty(String propertyName) {
+    String value = "";
+    try {
+      Process getPropProcess = Runtime.getRuntime().exec("getprop " + propertyName);
+      BufferedReader osRes = new BufferedReader(new InputStreamReader(getPropProcess.getInputStream()));
+      value = osRes.readLine();
+      osRes.close();
+    } catch (Exception e) {
+      sLog.error("error getting system property " + propertyName, e);
+    }
+    return value;
   }
 }
