@@ -43,7 +43,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    compileOnly fileTree(include: ['*.jar'], dir: 'externallibs')
+    compileOnly fileTree(include: ['com.lge.ivi_191209.jar'], dir: 'externallibs')
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation('com.github.bright:slf4android:0.1.6') { transitive = true }
     implementation ("org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}") {
@@ -109,7 +109,7 @@ class ModifyGeckoView extends Transform {
 
                     if ("${src}" ==~ ".*geckoview.*-runtime.jar") {
                         def pool = new ClassPool()
-                        pool.insertClassPath(System.getenv("ANDROID_HOME") + "\\platforms\\android-28\\android.jar")
+                        pool.insertClassPath(System.getenv("HOME") + "/Android/Sdk/platforms/android-28/android.jar")
                         pool.insertClassPath("${src}")
                         pool.importPackage("android.view.inputmethod.InputConnection")
                         pool.importPackage("android.view.inputmethod.EditorInfo")
