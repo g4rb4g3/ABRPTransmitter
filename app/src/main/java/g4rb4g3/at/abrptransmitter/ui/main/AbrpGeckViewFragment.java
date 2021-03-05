@@ -139,7 +139,8 @@ public class AbrpGeckViewFragment extends Fragment {
     mSharedPreferences = getContext().getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     mLgeFirmwareVersion = Utils.getSystemProperty(SYSTEM_PROPERTY_LGE_FW_VERSIOIN);
 
-    GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder();
+    GeckoRuntimeSettings.Builder builder = new GeckoRuntimeSettings.Builder()
+            .remoteDebuggingEnabled(true);
     mGeckoRuntime = GeckoRuntime.create(getContext(), builder.build());
 
     registerWebExtension();
