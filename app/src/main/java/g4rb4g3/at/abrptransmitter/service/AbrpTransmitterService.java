@@ -260,7 +260,9 @@ public class AbrpTransmitterService extends Service {
       try {
         sLog.debug("AbrpUpdater, updating telemetry object");
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_TIME, System.currentTimeMillis() / 1000);
-        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, mGreenCarManager.getBatteryChargePersent());
+        int soc = mGreenCarManager.getBatteryChargePersent();
+        if (soc == 0) return;
+        mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SOC, soc);
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_SPEED, mCarInfoManager.getCarSpeed());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_CHARGING, mGreenCarManager.getChargeStatus());
         mJTlmObj.put(ABETTERROUTEPLANNER_JSON_POWER, mAverageCollector.getAverage());
