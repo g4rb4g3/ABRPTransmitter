@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 ext {
     geckoview_channel = "geckoview"
-    geckoview_version = "86.0.20210222142601"
+    geckoview_version = "87.0.20210318103112"
 }
 
 android {
