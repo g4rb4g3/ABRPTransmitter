@@ -16,7 +16,7 @@ import g4rb4g3.at.abrptransmitter.R;
 public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
   @StringRes
-  public static final int[] TAB_TITLES = new int[]{R.string.tab_abrp_geckoview, R.string.tab_settings, R.string.tab_logs, R.string.tab_information};
+  public static final int[] TAB_TITLES = new int[]{R.string.tab_settings, R.string.tab_logs, R.string.tab_information};
   private final Context mContext;
   private final SparseArray<WeakReference<Fragment>> instantiatedFragments = new SparseArray<>();
 
@@ -61,15 +61,5 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
   public void destroyItem(final ViewGroup container, final int position, final Object object) {
     instantiatedFragments.remove(position);
     super.destroyItem(container, position, object);
-  }
-
-  @Nullable
-  public Fragment getFragment(final int position) {
-    final WeakReference<Fragment> wr = instantiatedFragments.get(position);
-    if (wr != null) {
-      return wr.get();
-    } else {
-      return null;
-    }
   }
 }
