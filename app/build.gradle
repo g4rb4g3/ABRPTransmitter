@@ -1,10 +1,5 @@
 apply plugin: 'com.android.application'
 
-ext {
-    geckoview_channel = "geckoview"
-    geckoview_version = "87.0.20210318103112"
-}
-
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -12,7 +7,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 17
         versionCode 1
-        versionName "3.1.9"
+        versionName "3.1.9-no-map"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
             abiFilters 'armeabi-v7a'
@@ -46,115 +41,5 @@ dependencies {
     compileOnly fileTree(include: ['com.lge.ivi_191209.jar'], dir: 'externallibs')
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation('com.github.bright:slf4android:0.1.6') { transitive = true }
-    implementation ("org.mozilla.geckoview:${geckoview_channel}:${geckoview_version}") {
-        exclude module: "snakeyaml" // disable non-compatible yaml library
-    }
     implementation "org.yaml:snakeyaml:1.26:android" //use updated yaml library compatible with old Android
 }
-
-//https://vincent.bernat.ch/en/blog/2016-android-build-time-patch
-//patch geckoview classes so keyboard doesn't open up in full screen mode, TODO: check on geckoview update!
-import com.android.build.api.transform.*
-import javassist.ClassPool
-import javassist.CtNewMethod
-import org.apache.commons.io.FileUtils
-import org.apache.commons.io.IOUtils
-
-import java.util.jar.JarEntry
-import java.util.jar.JarFile
-import java.util.jar.JarOutputStream
-
-class ModifyGeckoView extends Transform {
-    Logger logger = null
-
-    public ModifyGeckoView(Logger logger) {
-        this.logger = logger;
-    }
-
-    @Override
-    String getName() {
-        return "ModifyGeckoView"
-    }
-
-    @Override
-    Set<QualifiedContent.ContentType> getInputTypes() {
-        return Collections.singleton(QualifiedContent.DefaultContentType.CLASSES)
-    }
-
-    @Override
-    Set<QualifiedContent.Scope> getScopes() {
-        return Collections.singleton(QualifiedContent.Scope.EXTERNAL_LIBRARIES)
-    }
-
-    @Override
-    boolean isIncremental() {
-        return true
-    }
-
-    @Override
-    void transform(Context context, Collection<TransformInput> inputs, Collection<TransformInput> referencedInputs, TransformOutputProvider outputProvider, boolean isIncremental) throws IOException, TransformException, InterruptedException {
-        inputs.each {
-            it.jarInputs.each {
-                def jarName = it.name
-                def src = it.getFile()
-                logger.info(src.absolutePath)
-                def dest = outputProvider.getContentLocation(jarName,
-                        it.contentTypes, it.scopes,
-                        Format.JAR);
-                def status = it.getStatus()
-                if (status == Status.REMOVED) { // ❶
-                    logger.info("Remove ${src}")
-                    FileUtils.delete(dest)
-                } else if (!isIncremental || status != Status.NOTCHANGED) { // ❷
-
-                    if ("${src}" ==~ ".*geckoview.*-runtime.jar") {
-                        def pool = new ClassPool()
-                        pool.insertClassPath(System.getenv("HOME") + "/Android/Sdk/platforms/android-28/android.jar")
-                        pool.insertClassPath("${src}")
-                        pool.importPackage("android.view.inputmethod.InputConnection")
-                        pool.importPackage("android.view.inputmethod.EditorInfo")
-
-                        def ctc = pool.get('org.mozilla.geckoview.GeckoInputConnection')
-                        def ctm = ctc.getDeclaredMethod("onCreateInputConnection")
-                        ctc.removeMethod(ctm)
-                        ctc.addMethod(CtNewMethod.make("""
-public synchronized InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-    if (this.mIMEState == 0) {
-      return null;
-    } else {
-      outAttrs.imeOptions |= EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_FLAG_NO_FULLSCREEN;
-      
-      this.mCurrentInputMethod = "default_input_method";
-      outAttrs.initialSelStart = this.mLastSelectionStart;
-      outAttrs.initialSelEnd = this.mLastSelectionEnd;
-      return this;
-    }
-  }
-""", ctc))
-                        // Write back the JAR file
-                        def input = new JarFile(src)
-                        def output = new JarOutputStream(new FileOutputStream(dest))
-
-                        input.entries().each {
-                            if (it.getName() != "org/mozilla/geckoview/GeckoInputConnection.class") {
-                                def s = input.getInputStream(it)
-                                output.putNextEntry(new JarEntry(it.getName()))
-                                IOUtils.copy(s, output)
-                                s.close()
-                            }
-                        }
-                        output.putNextEntry(new JarEntry("org/mozilla/geckoview/GeckoInputConnection.class"))
-                        output.write(ctc.toBytecode())
-
-                        output.close()
-                    } else {
-                        logger.info("Copy ${src}")
-                        FileUtils.copyFile(src, dest)
-                    }
-                }
-            }
-        }
-    }
-}
-
-android.registerTransform(new ModifyGeckoView(logger))

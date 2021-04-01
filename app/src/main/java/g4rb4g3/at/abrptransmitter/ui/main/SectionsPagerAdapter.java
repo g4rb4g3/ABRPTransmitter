@@ -29,12 +29,10 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
   public Fragment getItem(int position) {
     switch (position) {
       case 0:
-        return AbrpGeckViewFragment.newInstance();
-      case 1:
         return SettingsFragment.newInstance();
-      case 2:
+      case 1:
         return LogFragment.newInstance();
-      case 3:
+      case 2:
         return InformationFragment.newInstance();
       default:
         throw new RuntimeException("unknown fragment called");

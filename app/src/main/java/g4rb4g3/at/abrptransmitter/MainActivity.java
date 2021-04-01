@@ -1,7 +1,6 @@
 package g4rb4g3.at.abrptransmitter;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextClock;
@@ -9,14 +8,9 @@ import android.widget.TextClock;
 import com.google.android.material.tabs.TabLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
-import g4rb4g3.at.abrptransmitter.ui.main.AbrpGeckViewFragment;
+
 import g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter;
 import g4rb4g3.at.abrptransmitter.ui.main.SwitchableSwipeViewPager;
-
-import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_DOWN;
-import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_PRESS;
-import static com.lge.ivi.view.IviKeyEvent.KEYCODE_TUNE_UP;
-import static g4rb4g3.at.abrptransmitter.ui.main.SectionsPagerAdapter.TAB_TITLES;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -60,26 +54,5 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
       }
     }
-  }
-
-  @Override
-  public boolean dispatchKeyEvent(KeyEvent event) {
-    switch (event.getKeyCode()) {
-      case KEYCODE_TUNE_UP:
-      case KEYCODE_TUNE_DOWN:
-      case KEYCODE_TUNE_PRESS:
-        return notifyFragment(event.getKeyCode(), event.getAction());
-      default:
-        return super.dispatchKeyEvent(event);
-    }
-  }
-
-  private boolean notifyFragment(int keycode, int action) {
-    int position = mTabs.getSelectedTabPosition();
-    if (TAB_TITLES[position] == R.string.tab_abrp_geckoview) {
-      ((AbrpGeckViewFragment) mSectionsPageAdapter.getFragment(position)).onKeyEvent(keycode, action);
-      return true;
-    }
-    return false;
   }
 }
