@@ -27,22 +27,6 @@ public class MainActivity extends AppCompatActivity {
     viewPager.setAdapter(mSectionsPageAdapter);
     mTabs = findViewById(R.id.tabs);
     mTabs.setupWithViewPager(viewPager);
-
-    TextClock textClock = findViewById(R.id.textclock);
-
-    Button btnToggleFullscreen = findViewById(R.id.btn_toggle_fullscreen);
-    btnToggleFullscreen.setOnClickListener(v -> {
-      if (!mFullscreen) {
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-        btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen_exit), null, null, null);
-        textClock.setVisibility(View.VISIBLE);
-      } else {
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        btnToggleFullscreen.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.ic_fullscreen), null, null, null);
-        textClock.setVisibility(View.GONE);
-      }
-      mFullscreen = !mFullscreen;
-    });
   }
 
   @Override
