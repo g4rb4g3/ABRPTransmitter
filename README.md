@@ -1,3 +1,6 @@
+```diff
+Abandonware! Since I sold my Ioniq a while back there is no more development going on here.
+```
 
 # ABRP Transmitter
 Brings full featured www.abetterrouteplanner.com to your Hyundai Ioniq (28 kWh). <br />
